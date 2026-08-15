@@ -27,8 +27,8 @@
 		errorMsg = null;
 		successMsg = null;
 		try {
-			await performFullSync(currentUser);
-			successMsg = 'Library successfully synced with Cloud!';
+			const stats = await performFullSync(currentUser);
+			successMsg = `Sync complete! Cloud matched ${stats?.showsCount || 0} shows and ${stats?.episodesCount || 0} episodes.`;
 		} catch (err: any) {
 			errorMsg = 'Sync error: ' + (err?.message || 'Failed to sync');
 		} finally {

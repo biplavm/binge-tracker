@@ -58,7 +58,7 @@ export async function signOutUser() {
 	return await client.auth.signOut();
 }
 
-// Bi-directional Cloud Sync with local Dexie IndexedDB
+// Upload local IndexedDB shows and watched episodes to Supabase Cloud
 export async function syncLocalDexieToSupabase(user: User) {
 	const client = getSupabase();
 	if (!client) return;
@@ -104,9 +104,13 @@ export async function syncLocalDexieToSupabase(user: User) {
 	}
 }
 
+// Download cloud shows and watched episodes from Supabase to local IndexedDB
 export async function fetchSupabaseToDexie(user: User) {
 	const client = getSupabase();
-	if (!client) return;
+	if (!client) return { showsCount: 0, episodesCount: 0 };
+
+	let showsCount = 0;
+	let episodesCount = 0;
 
 	try {
 		const { data: cloudShows, error: showErr } = await client
@@ -117,6 +121,7 @@ export async function fetchSupabaseToDexie(user: User) {
 		if (showErr) {
 			console.error('Error fetching cloud shows from Supabase:', showErr.message);
 		} else if (cloudShows && cloudShows.length > 0) {
+			showsCount = cloudShows.length;
 			for (const cs of cloudShows) {
 				const existing = await db.shows.get(cs.tvmaze_id);
 				await db.shows.put({
@@ -142,6 +147,7 @@ export async function fetchSupabaseToDexie(user: User) {
 		if (epErr) {
 			console.error('Error fetching cloud episodes from Supabase:', epErr.message);
 		} else if (cloudEps && cloudEps.length > 0) {
+			episodesCount = cloudEps.length;
 			for (const ce of cloudEps) {
 				const existing = await db.watchedEpisodes
 					.where('[tvmazeShowId+tvmazeEpisodeId]')
@@ -162,6 +168,8 @@ export async function fetchSupabaseToDexie(user: User) {
 	} catch (err) {
 		console.warn('Fetch Supabase data error:', err);
 	}
+
+	return { showsCount, episodesCount };
 }
 
 export async function removeShowFromSupabase(user: User, tvmazeShowId: number) {
@@ -175,10 +183,11 @@ export async function removeShowFromSupabase(user: User, tvmazeShowId: number) {
 	}
 }
 
-// Full 2-Way Sync helper
+// Full 2-Way Sync helper (Upload local additions -> Download & merge cloud master)
 export async function performFullSync(user: User) {
 	await syncLocalDexieToSupabase(user);
-	await fetchSupabaseToDexie(user);
+	const stats = await fetchSupabaseToDexie(user);
+	return stats;
 }
 
 // Auto sync helper triggered on store mutations
