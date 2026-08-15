@@ -96,11 +96,54 @@
 	}
 </script>
 
-<div class="glass-card group relative overflow-hidden rounded-2xl flex flex-col bg-white border border-stone-200 shadow-sm p-4 sm:p-5 gap-4 sm:gap-5">
+<div class="glass-card group relative overflow-hidden rounded-2xl flex flex-col bg-white border border-stone-200 shadow-sm p-4 sm:p-5 gap-3 sm:gap-5">
+	<!-- Mobile Header: Show name + year + genre + action triggers above poster & info -->
+	<div class="flex sm:hidden items-start justify-between gap-2 border-b border-stone-100 pb-2.5">
+		<div class="min-w-0 flex-1">
+			<h3 class="text-base font-extrabold text-stone-900 tracking-tight font-heading group-hover:text-amber-600 transition-colors leading-snug">
+				{showName}
+			</h3>
+			<p class="text-xs text-stone-500 font-medium mt-0.5">
+				{showPremieredYear || 'TBA'}{#if showGenres.length > 0} • {showGenres.slice(0, 3).join(', ')}{/if}
+			</p>
+		</div>
+
+		<div class="flex items-center gap-1 shrink-0">
+			<button
+				onclick={() => (showReviewInput = !showReviewInput)}
+				class={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
+					currentRating > 0 ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+				}`}
+				title="Personal Rating"
+			>
+				<Star class="h-4 w-4" />
+			</button>
+
+			<button
+				onclick={() => showId && tracker.openShowModal(showId)}
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
+				title="Full Episode Breakdown"
+			>
+				<List class="h-4 w-4" />
+			</button>
+			<button
+				onclick={() => {
+					if (showId && confirm(`Are you sure you want to remove "${showName}" from your tracked shows?`)) {
+						tracker.removeShow(showId);
+					}
+				}}
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+				title="Remove from Library"
+			>
+				<Trash2 class="h-4 w-4" />
+			</button>
+		</div>
+	</div>
+
 	<!-- Top: Poster & Details -->
 	<div class="flex flex-row gap-3 sm:gap-5 items-stretch">
 		<!-- Left: Poster Image -->
-	<div class="relative w-28 sm:w-32 shrink-0 aspect-[2/3] rounded-xl overflow-hidden bg-stone-100 shadow-sm self-start">
+		<div class="relative w-28 sm:w-32 shrink-0 aspect-[2/3] rounded-xl overflow-hidden bg-stone-100 shadow-sm self-start">
 		<img
 			src={showPoster}
 			alt={showName}
@@ -139,8 +182,8 @@
 	<!-- Right: Content Details -->
 	<div class="flex-1 flex flex-col justify-between gap-2 min-w-0">
 		<div class="flex flex-col gap-2">
-			<!-- Title & Action Triggers -->
-			<div class="flex items-start justify-between gap-1.5">
+			<!-- Title & Action Triggers (Desktop only) -->
+			<div class="hidden sm:flex items-start justify-between gap-1.5">
 				<div class="min-w-0 flex-1">
 					<h3 class="text-sm sm:text-lg font-extrabold text-stone-900 tracking-tight font-heading group-hover:text-amber-600 transition-colors truncate">
 						{showName}
