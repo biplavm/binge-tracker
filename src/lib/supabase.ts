@@ -55,7 +55,11 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
 export async function signOutUser() {
 	const client = getSupabase();
 	if (!client) return;
-	return await client.auth.signOut();
+	try {
+		await client.auth.signOut();
+	} catch (err) {
+		console.warn('Sign out warning:', err);
+	}
 }
 
 // Upload local IndexedDB shows and watched episodes to Supabase Cloud

@@ -36,6 +36,12 @@
 		}
 	}
 
+	async function handleSignOut() {
+		await signOutUser();
+		currentUser = null;
+		onClose();
+	}
+
 	async function handleSubmit() {
 		if (!email || !password) {
 			errorMsg = 'Please enter both email and password';
@@ -173,7 +179,7 @@
 				{/if}
 
 				<button
-					onclick={async () => { await signOutUser(); onClose(); }}
+					onclick={handleSignOut}
 					class="flex w-full items-center justify-center gap-2 rounded-xl bg-red-50 py-2.5 text-xs font-bold text-red-700 border border-red-200 hover:bg-red-100 transition-all mt-4"
 				>
 					<LogOut class="h-4 w-4" />
