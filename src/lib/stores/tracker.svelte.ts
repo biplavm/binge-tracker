@@ -1,6 +1,7 @@
 import { db, type TrackedShow, type UserList, type UserListItem } from '$lib/db';
 import type { TVMazeShow, TVMazeEpisode } from '$lib/services/tvmaze';
 import { searchShows } from '$lib/services/tvmaze';
+import { triggerAutoSync, getCurrentUser, removeShowFromSupabase } from '$lib/supabase';
 
 export type SortOption = 'last_watched' | 'user_rating' | 'progress' | 'title' | 'year';
 
@@ -66,12 +67,14 @@ class TrackerStore {
 			episodeNumber: episode.number,
 			watchedAt: new Date()
 		});
+		await triggerAutoSync();
 	}
 
 	async unmarkEpisode(tvmazeShowId: number, tvmazeEpisodeId: number) {
 		await db.watchedEpisodes
 			.where({ tvmazeShowId, tvmazeEpisodeId })
 			.delete();
+		await triggerAutoSync();
 	}
 
 	async markSeasonWatched(tvmazeShowId: number, episodes: TVMazeEpisode[]) {
@@ -83,22 +86,29 @@ class TrackerStore {
 			watchedAt: new Date()
 		}));
 		await db.watchedEpisodes.bulkPut(records);
+		await triggerAutoSync();
 	}
 
 	async updateShowStatus(show: TrackedShow) {
 		await db.shows.put(show);
+		await triggerAutoSync();
 	}
 
 	async updateUserRating(tvmazeId: number, userRating: number, userReview?: string) {
 		const show = await db.shows.get(tvmazeId);
 		if (show) {
 			await db.shows.update(tvmazeId, { userRating, userReview });
+			await triggerAutoSync();
 		}
 	}
 
 	async removeShow(tvmazeShowId: number) {
 		await db.shows.delete(tvmazeShowId);
 		await db.watchedEpisodes.where({ tvmazeShowId }).delete();
+		const user = await getCurrentUser();
+		if (user) {
+			await removeShowFromSupabase(user, tvmazeShowId);
+		}
 	}
 
 	// Custom List Management

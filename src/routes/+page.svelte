@@ -2,6 +2,7 @@
 	import { tracker } from '$lib/stores/tracker.svelte';
 	import { db, type TrackedShow, type WatchedEpisode } from '$lib/db';
 	import { getShowDetails, getPopularShows, searchShows, type TVMazeShow } from '$lib/services/tvmaze';
+	import { triggerAutoSync } from '$lib/supabase';
 	import ShowCard from '$lib/components/ShowCard.svelte';
 	import YetToWatchCard from '$lib/components/YetToWatchCard.svelte';
 	import StatsDashboard from '$lib/components/StatsDashboard.svelte';
@@ -138,6 +139,7 @@
 			summary: full.summary
 		});
 		showDetailsCache = { ...showDetailsCache, [full.id]: full };
+		await triggerAutoSync();
 		tracker.activeTab = status;
 	}
 </script>

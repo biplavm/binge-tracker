@@ -22,6 +22,13 @@ export function getSupabase(): SupabaseClient | null {
 	return _supabase;
 }
 
+export async function getCurrentUser(): Promise<User | null> {
+	const client = getSupabase();
+	if (!client) return null;
+	const { data } = await client.auth.getSession();
+	return data?.session?.user ?? null;
+}
+
 export async function signUpWithEmail(email: string, pass: string) {
 	const client = getSupabase();
 	if (!client) return { error: { message: 'Client unavailable' } };
@@ -157,8 +164,27 @@ export async function fetchSupabaseToDexie(user: User) {
 	}
 }
 
-// 2-Way Sync helper
+export async function removeShowFromSupabase(user: User, tvmazeShowId: number) {
+	const client = getSupabase();
+	if (!client) return;
+	try {
+		await client.from('user_shows').delete().eq('user_id', user.id).eq('tvmaze_id', tvmazeShowId);
+		await client.from('user_watched_episodes').delete().eq('user_id', user.id).eq('tvmaze_show_id', tvmazeShowId);
+	} catch (err) {
+		console.warn('Error removing show from Supabase:', err);
+	}
+}
+
+// Full 2-Way Sync helper
 export async function performFullSync(user: User) {
-	await fetchSupabaseToDexie(user);
 	await syncLocalDexieToSupabase(user);
+	await fetchSupabaseToDexie(user);
+}
+
+// Auto sync helper triggered on store mutations
+export async function triggerAutoSync() {
+	const user = await getCurrentUser();
+	if (user) {
+		await syncLocalDexieToSupabase(user);
+	}
 }

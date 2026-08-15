@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { signUpWithEmail, signInWithEmail, signInWithOAuth, signOutUser } from '$lib/supabase';
+	import { signUpWithEmail, signInWithEmail, signInWithOAuth, signOutUser, performFullSync } from '$lib/supabase';
 	import type { User } from '@supabase/supabase-js';
-	import { X, Lock, Mail, LogIn, UserPlus, AlertCircle, CheckCircle2, Download, LogOut, CloudCheck } from '@lucide/svelte';
+	import { X, Lock, Mail, LogIn, UserPlus, AlertCircle, CheckCircle2, Download, LogOut, CloudCheck, RefreshCw } from '@lucide/svelte';
 
 	let {
 		currentUser = null,
@@ -17,8 +17,24 @@
 	let email = $state('');
 	let password = $state('');
 	let isLoading = $state(false);
+	let isSyncingManual = $state(false);
 	let errorMsg = $state<string | null>(null);
 	let successMsg = $state<string | null>(null);
+
+	async function handleManualSync() {
+		if (!currentUser) return;
+		isSyncingManual = true;
+		errorMsg = null;
+		successMsg = null;
+		try {
+			await performFullSync(currentUser);
+			successMsg = 'Library successfully synced with Cloud!';
+		} catch (err: any) {
+			errorMsg = 'Sync error: ' + (err?.message || 'Failed to sync');
+		} finally {
+			isSyncingManual = false;
+		}
+	}
 
 	async function handleSubmit() {
 		if (!email || !password) {
@@ -122,6 +138,22 @@
 						Connected
 					</span>
 				</div>
+
+				<!-- Manual Sync Trigger Button -->
+				<button
+					onclick={handleManualSync}
+					disabled={isSyncingManual}
+					class="flex w-full items-center justify-between rounded-2xl bg-amber-100/80 p-3.5 border border-amber-300 hover:bg-amber-200 transition-colors text-left"
+				>
+					<div class="flex items-center gap-2.5">
+						<RefreshCw class={`h-4 w-4 text-amber-800 shrink-0 ${isSyncingManual ? 'animate-spin' : ''}`} />
+						<div>
+							<h5 class="text-xs font-bold text-amber-950">Sync Library Now</h5>
+							<p class="text-[10px] text-stone-600">Force 2-way cloud sync across laptop & mobile</p>
+						</div>
+					</div>
+					<span class="text-xs font-extrabold text-amber-900">Sync ➔</span>
+				</button>
 
 				<!-- Install App Action inside Account Settings -->
 				{#if onOpenInstallGuide}
