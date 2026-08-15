@@ -94,7 +94,7 @@
 				<!-- Anti-Spoiler Shield Icon Button -->
 				<button
 					onclick={() => tracker.toggleSpoilerMode()}
-					class={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border transition-all ${
+					class={`flex min-h-12 min-w-12 items-center justify-center rounded-xl border transition-all ${
 						tracker.antiSpoilerMode
 							? 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200 shadow-sm'
 							: 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200 hover:text-stone-900'
@@ -113,16 +113,16 @@
 					{#if currentUser}
 						<button
 							onclick={() => (showAuthModal = true)}
-							class="flex items-center gap-1 bg-amber-50 p-1.5 rounded-xl border border-amber-300 shadow-sm hover:bg-amber-100 transition-all"
+							class="flex min-h-12 items-center gap-2 bg-amber-50 px-4 rounded-xl border border-amber-300 shadow-sm hover:bg-amber-100 transition-all"
 							title={`Signed in as ${currentUser.email}`}
 						>
 							<CloudCheck class={`h-4 w-4 text-amber-700 ${isSyncing ? 'animate-spin' : ''}`} />
-							<span class="text-xs font-extrabold text-amber-900 px-1 truncate max-w-[120px]">{currentUser.email?.split('@')[0]}</span>
+							<span class="text-xs font-extrabold text-amber-900 truncate max-w-[120px]">{currentUser.email?.split('@')[0]}</span>
 						</button>
 					{:else}
 						<button
 							onclick={() => (showAuthModal = true)}
-							class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
+							class="flex min-h-12 min-w-12 items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
 							title="Sign In / Account Settings"
 						>
 							<UserIcon class="h-4 w-4 text-stone-950" />

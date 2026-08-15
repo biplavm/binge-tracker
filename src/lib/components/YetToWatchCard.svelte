@@ -80,7 +80,7 @@
 	<div class="p-4 flex items-center justify-between gap-2 border-t border-stone-200 bg-stone-50/50">
 		<button
 			onclick={() => tracker.openShowModal(show.id)}
-			class="text-xs font-bold text-stone-600 hover:text-stone-900 transition-colors"
+			class="min-h-12 px-3 text-sm font-bold text-stone-600 hover:text-stone-900 transition-colors"
 		>
 			Preview Episodes
 		</button>
@@ -92,17 +92,17 @@
 						tracker.removeShow(show.id);
 					}
 				}}
-				class="rounded-xl p-2 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+				class="flex h-12 w-12 items-center justify-center rounded-xl text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
 				title="Remove"
 			>
-				<Trash2 class="h-4 w-4" />
+				<Trash2 class="h-5 w-5" />
 			</button>
 
 			<button
 				onclick={startWatching}
-				class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-3.5 py-1.5 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
+				class="flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 text-sm font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
 			>
-				<Play class="h-3.5 w-3.5 fill-stone-950 text-stone-950" />
+				<Play class="h-4 w-4 fill-stone-950 text-stone-950" />
 				<span>Start Watching</span>
 			</button>
 		</div>

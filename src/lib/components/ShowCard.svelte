@@ -159,20 +159,20 @@
 				<div class="flex items-center gap-1 shrink-0">
 					<button
 						onclick={() => (showReviewInput = !showReviewInput)}
-						class={`rounded-xl p-1.5 sm:p-2 transition-colors ${
+						class={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
 							reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
 						}`}
 						title="Personal Notes / Review"
 					>
-						<MessageSquare class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+						<MessageSquare class="h-4 w-4 sm:h-5 sm:w-5" />
 					</button>
 
 					<button
 						onclick={() => showId && tracker.openShowModal(showId)}
-						class="rounded-xl bg-stone-100 p-1.5 sm:p-2 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
+						class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
 						title="Full Episode Breakdown"
 					>
-						<List class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+						<List class="h-4 w-4 sm:h-5 sm:w-5" />
 					</button>
 					<button
 						onclick={() => {
@@ -180,26 +180,26 @@
 								tracker.removeShow(showId);
 							}
 						}}
-						class="rounded-xl bg-stone-100 p-1.5 sm:p-2 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+						class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
 						title="Remove from Library"
 					>
-						<Trash2 class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+						<Trash2 class="h-4 w-4 sm:h-5 sm:w-5" />
 					</button>
 				</div>
 			</div>
 
 			<!-- Personal Star Rating Selector -->
-			<div class="mt-2 flex items-center gap-1">
-				<span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider mr-1">My Score:</span>
-				<div class="flex items-center gap-0.5">
+			<div class="mt-2 flex items-center gap-2">
+				<span class="text-xs font-bold text-stone-500 uppercase tracking-wider mr-1">My Score:</span>
+				<div class="flex items-center gap-1">
 					{#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as star}
 						<button
 							onclick={() => setPersonalRating(star)}
-							class="p-0.5 focus:outline-none transition-transform hover:scale-125"
+							class="flex h-8 w-8 items-center justify-center focus:outline-none transition-transform hover:scale-125"
 							title={`Rate ${star}/10`}
 						>
 							<Star
-								class={`h-3 w-3 ${
+								class={`h-5 w-5 ${
 									star <= currentRating
 										? 'fill-amber-500 text-amber-500'
 										: 'text-stone-300 hover:text-amber-400'
@@ -220,18 +220,18 @@
 						bind:value={reviewText}
 						placeholder="Write personal review notes or thoughts..."
 						rows="2"
-						class="w-full rounded-lg bg-white p-2 text-xs text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none"
+						class="w-full rounded-lg bg-white p-3 text-sm text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none"
 					></textarea>
-					<div class="flex justify-end gap-1.5">
+					<div class="flex justify-end gap-2">
 						<button
 							onclick={() => (showReviewInput = false)}
-							class="px-2 py-0.5 text-[10px] font-bold text-stone-500 hover:text-stone-800"
+							class="min-h-10 min-w-[80px] px-3 font-bold text-stone-500 hover:text-stone-800 text-sm"
 						>
 							Cancel
 						</button>
 						<button
 							onclick={saveReview}
-							class="rounded-lg bg-amber-500 px-2.5 py-0.5 text-[10px] font-extrabold text-stone-950 hover:bg-amber-400"
+							class="min-h-10 min-w-[80px] rounded-lg bg-amber-500 px-4 font-extrabold text-stone-950 hover:bg-amber-400 text-sm"
 						>
 							Save Note
 						</button>
@@ -291,21 +291,21 @@
 						</p>
 					{/if}
 
-					<div class="mt-2 flex items-center gap-1.5">
+					<div class="mt-2 flex items-center gap-2">
 						<button
 							onclick={() => showId && tracker.markEpisodeWatched(showId, nextEpisode)}
-							class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 py-1.5 sm:py-2 text-[11px] sm:text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
+							class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 text-xs sm:text-sm font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
 						>
-							<Check class="h-3.5 w-3.5 text-stone-950" />
+							<Check class="h-4 w-4 sm:h-5 sm:w-5 text-stone-950" />
 							<span>Mark S{nextEpisode.season}E{nextEpisode.number} Watched</span>
 						</button>
 						{#if watchedCount > 0}
 							<button
 								onclick={() => showId && tracker.unmarkLastEpisode(showId)}
-								class="flex items-center justify-center rounded-xl bg-stone-100 p-1.5 sm:p-2 text-stone-500 hover:bg-stone-200 hover:text-stone-800 transition-colors shrink-0"
+								class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-800 transition-colors shrink-0"
 								title="Undo last watched episode"
 							>
-								<Undo2 class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+								<Undo2 class="h-4 w-4 sm:h-5 sm:w-5" />
 							</button>
 						{/if}
 					</div>

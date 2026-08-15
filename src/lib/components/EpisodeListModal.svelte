@@ -109,7 +109,7 @@
 					{@const isCompleted = eps.length > 0 && eps.every(ep => watchedIds.includes(ep.id))}
 					<button
 						onclick={() => (activeSeason = s)}
-						class={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all ${
+						class={`flex min-h-12 min-w-12 items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-extrabold transition-all ${
 							activeSeason === s
 								? 'bg-amber-500 text-stone-950 shadow-sm'
 								: 'bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-900'
@@ -125,9 +125,9 @@
 
 			<button
 				onclick={toggleSeasonWatched}
-				class="flex items-center gap-1.5 rounded-xl bg-amber-100 px-3 py-1.5 text-xs font-extrabold text-amber-900 border border-amber-300 hover:bg-amber-200 transition-all shrink-0"
+				class="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-amber-100 px-4 py-2 text-sm font-extrabold text-amber-900 border border-amber-300 hover:bg-amber-200 transition-all shrink-0"
 			>
-				<CheckCheck class="h-4 w-4 text-amber-800" />
+				<CheckCheck class="h-5 w-5 text-amber-800" />
 				<span>{isSeasonFullyWatched ? 'Unmark Season' : 'Mark Season Watched'}</span>
 			</button>
 		</div>
@@ -149,13 +149,13 @@
 								isWatched
 									? tracker.unmarkEpisode(show.id, ep.id)
 									: tracker.markEpisodeWatched(show.id, ep)}
-							class={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border transition-all ${
+							class={`mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all ${
 								isWatched
 									? 'bg-amber-500 border-amber-500 text-stone-950 font-bold'
 									: 'border-stone-300 bg-white text-transparent hover:border-amber-500'
 							}`}
 						>
-							<Check class="h-3.5 w-3.5 stroke-[3]" />
+							<Check class="h-5 w-5 stroke-[3]" />
 						</button>
 
 						<div class="space-y-1">
