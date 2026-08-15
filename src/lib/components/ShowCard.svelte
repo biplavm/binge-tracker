@@ -3,8 +3,9 @@
 	import type { TrackedShow } from '$lib/db';
 	import { calculateBingePace, formatLongDate, getDaysUntil } from '$lib/services/tvmaze';
 	import { tracker } from '$lib/stores/tracker.svelte';
+	import { getSupabase } from '$lib/supabase';
 	import { db } from '$lib/db';
-	import { Check, Flame, Star, List, Calendar, Trash2, ChevronRight, Clock, BookmarkPlus, MessageSquare } from '@lucide/svelte';
+	import { Check, Flame, Star, List, Calendar, Trash2, ChevronRight, Clock, BookmarkPlus, MessageSquare, CloudCheck, HardDrive } from '@lucide/svelte';
 
 	let {
 		show = null,
@@ -21,6 +22,20 @@
 		userReview?: string;
 		onOpenPaceModal?: (show: TVMazeShow) => void;
 	} = $props();
+
+	// Check if user is signed in to render cloud vs local storage badge
+	let isUserSignedIn = $state(false);
+	if (typeof window !== 'undefined') {
+		const sb = getSupabase();
+		if (sb) {
+			sb.auth.getSession().then((res: any) => {
+				isUserSignedIn = !!res?.data?.session?.user;
+			});
+			sb.auth.onAuthStateChange((_event: string, session: any) => {
+				isUserSignedIn = !!session?.user;
+			});
+		}
+	}
 
 	const showId = $derived(show?.id || trackedShow?.tvmazeId || 0);
 	const showName = $derived(show?.name || trackedShow?.name || 'Loading Show...');
@@ -98,6 +113,17 @@
 				<span>{showRatingAverage}</span>
 			</div>
 		{/if}
+
+		<!-- Storage Location Indicator Badge -->
+		<div class="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-stone-950/70 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md">
+			{#if isUserSignedIn}
+				<CloudCheck class="h-3 w-3 text-amber-300" />
+				<span class="hidden sm:inline">Cloud</span>
+			{:else}
+				<HardDrive class="h-3 w-3 text-stone-300" />
+				<span class="hidden sm:inline">Local</span>
+			{/if}
+		</div>
 
 		<!-- Network Badge -->
 		{#if showNetworkName}
