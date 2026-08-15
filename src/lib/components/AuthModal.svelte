@@ -6,10 +6,12 @@
 	let {
 		currentUser = null,
 		onClose,
+		onSignOut,
 		onOpenInstallGuide
 	}: {
 		currentUser?: User | null;
 		onClose: () => void;
+		onSignOut?: () => void;
 		onOpenInstallGuide?: () => void;
 	} = $props();
 
@@ -38,8 +40,12 @@
 
 	async function handleSignOut() {
 		await signOutUser();
-		currentUser = null;
-		onClose();
+		if (onSignOut) {
+			onSignOut();
+		} else {
+			currentUser = null;
+			onClose();
+		}
 	}
 
 	async function handleSubmit() {

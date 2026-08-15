@@ -60,6 +60,11 @@
 			showPwaModal = true;
 		}
 	}
+	async function handleUserSignOut() {
+		await signOutUser();
+		currentUser = null;
+		showAuthModal = false;
+	}
 </script>
 
 <!-- Top Sticky Navbar -->
@@ -297,6 +302,7 @@
 	<AuthModal
 		currentUser={currentUser}
 		onClose={() => (showAuthModal = false)}
+		onSignOut={handleUserSignOut}
 		onOpenInstallGuide={() => (showPwaModal = true)}
 	/>
 {/if}

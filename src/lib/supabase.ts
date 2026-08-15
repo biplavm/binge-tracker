@@ -54,11 +54,20 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
 
 export async function signOutUser() {
 	const client = getSupabase();
-	if (!client) return;
-	try {
-		await client.auth.signOut();
-	} catch (err) {
-		console.warn('Sign out warning:', err);
+	if (client) {
+		try {
+			await client.auth.signOut({ scope: 'local' });
+		} catch (err) {
+			console.warn('Sign out warning:', err);
+		}
+	}
+	if (typeof window !== 'undefined' && window.localStorage) {
+		for (let i = localStorage.length - 1; i >= 0; i--) {
+			const key = localStorage.key(i);
+			if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
+				localStorage.removeItem(key);
+			}
+		}
 	}
 }
 
