@@ -56,18 +56,20 @@ export async function signOutUser() {
 	const client = getSupabase();
 	if (client) {
 		try {
-			await client.auth.signOut({ scope: 'local' });
+			await client.auth.signOut();
 		} catch (err) {
 			console.warn('Sign out warning:', err);
 		}
 	}
-	if (typeof window !== 'undefined' && window.localStorage) {
-		for (let i = localStorage.length - 1; i >= 0; i--) {
-			const key = localStorage.key(i);
-			if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
-				localStorage.removeItem(key);
-			}
+	_supabase = null;
+	if (typeof window !== 'undefined') {
+		try {
+			window.localStorage.clear();
+			window.sessionStorage.clear();
+		} catch (e) {
+			console.warn('Storage clear error:', e);
 		}
+		window.location.href = '/';
 	}
 }
 
