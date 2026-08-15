@@ -185,26 +185,14 @@
 							.filter((ep) => ep.tvmazeShowId === tracked.tvmazeId)
 							.map((ep) => ep.tvmazeEpisodeId)}
 
-						{#if fullShow}
-							<ShowCard
-								show={fullShow}
-								watchedIds={showWatchedIds}
-								userRating={tracked.userRating}
-								userReview={tracked.userReview}
-								onOpenPaceModal={(s) => (paceModalShow = s)}
-							/>
-						{:else}
-							<!-- Skeleton Loader Card -->
-							<div class="glass-card rounded-2xl p-4 sm:p-6 bg-white border border-stone-200 animate-pulse flex gap-3 h-40">
-								<div class="w-24 sm:w-32 bg-stone-100 rounded-xl"></div>
-								<div class="flex-1 space-y-3">
-									<div class="h-5 w-2/3 bg-stone-100 rounded"></div>
-									<div class="h-3 w-1/3 bg-stone-100 rounded"></div>
-									<div class="h-2 w-full bg-stone-100 rounded"></div>
-									<div class="h-12 w-full bg-stone-100 rounded-xl"></div>
-								</div>
-							</div>
-						{/if}
+						<ShowCard
+							show={fullShow}
+							trackedShow={tracked}
+							watchedIds={showWatchedIds}
+							userRating={tracked.userRating}
+							userReview={tracked.userReview}
+							onOpenPaceModal={(s) => (paceModalShow = s)}
+						/>
 					{/each}
 				</div>
 			{:else}
