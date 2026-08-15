@@ -3,6 +3,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import PWAOfflineNotice from '$lib/components/PWAOfflineNotice.svelte';
 	import EpisodeListModal from '$lib/components/EpisodeListModal.svelte';
+	import BottomSheet from '$lib/components/BottomSheet.svelte';
 	import { tracker } from '$lib/stores/tracker.svelte';
 	import { searchShows, getShowDetails, type TVMazeShow } from '$lib/services/tvmaze';
 	import { db, type TrackedShow, type WatchedEpisode } from '$lib/db';
@@ -74,12 +75,12 @@
 	<!-- Global Episode Breakdown Modal -->
 	{#if tracker.selectedShowIdForModal}
 		{#if isLoadingModal}
-			<div class="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-md">
-				<div class="flex items-center gap-3 rounded-2xl bg-white px-6 py-4 border border-stone-200 shadow-xl">
+			<BottomSheet onClose={() => tracker.closeShowModal()}>
+				<div class="flex items-center justify-center py-16 gap-3">
 					<div class="h-5 w-5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent"></div>
-					<span class="text-sm font-extrabold text-stone-900">Loading episodes metadata...</span>
+					<span class="text-sm font-extrabold text-stone-900">Loading episodes...</span>
 				</div>
-			</div>
+			</BottomSheet>
 		{:else if modalShowDetails}
 			{@const showWatchedIds = watchedEpisodesList
 				.filter((ep) => ep.tvmazeShowId === modalShowDetails?.id)

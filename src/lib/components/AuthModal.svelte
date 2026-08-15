@@ -2,6 +2,7 @@
 	import { signUpWithEmail, signInWithEmail, signInWithOAuth, signOutUser, performFullSync } from '$lib/supabase';
 	import type { User } from '@supabase/supabase-js';
 	import { X, Lock, Mail, LogIn, UserPlus, AlertCircle, CheckCircle2, Download, LogOut, CloudCheck, RefreshCw } from '@lucide/svelte';
+	import BottomSheet from '$lib/components/BottomSheet.svelte';
 
 	let {
 		currentUser = null,
@@ -97,8 +98,8 @@
 	}
 </script>
 
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-md animate-fade-in">
-	<div class="glass-panel relative flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white border border-stone-200 shadow-2xl p-6 space-y-4">
+<BottomSheet {onClose}>
+	<div class="flex flex-col w-full overflow-y-auto p-6 space-y-4 max-h-[92vh] sm:max-h-[85vh]">
 		<!-- Header -->
 		<div class="flex items-center justify-between border-b border-stone-200 pb-3">
 			<div class="flex items-center gap-2.5">
@@ -286,4 +287,4 @@
 			</div>
 		{/if}
 	</div>
-</div>
+</BottomSheet>

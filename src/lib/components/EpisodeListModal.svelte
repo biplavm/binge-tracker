@@ -3,6 +3,7 @@
 	import { formatLongDate } from '$lib/services/tvmaze';
 	import { tracker } from '$lib/stores/tracker.svelte';
 	import { X, Check, Eye, EyeOff, Calendar, CheckCheck } from '@lucide/svelte';
+	import BottomSheet from '$lib/components/BottomSheet.svelte';
 
 	let {
 		show,
@@ -56,8 +57,8 @@
 	}
 </script>
 
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-md animate-fade-in">
-	<div class="glass-panel relative flex h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl bg-white border border-stone-200 shadow-2xl">
+<BottomSheet {onClose}>
+	<div class="flex flex-col h-full overflow-hidden">
 		<!-- Modal Header -->
 		<div class="flex items-center justify-between border-b border-stone-200 p-4 sm:p-5 bg-stone-50/80">
 			<div class="flex items-center gap-3">
@@ -186,4 +187,4 @@
 			{/each}
 		</div>
 	</div>
-</div>
+</BottomSheet>

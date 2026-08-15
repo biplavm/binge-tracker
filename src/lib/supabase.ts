@@ -144,12 +144,24 @@ export async function syncLocalDexieToSupabase(user: User) {
 
 	const deletedEps = await db.watchedEpisodes.filter((e) => e._syncStatus === 'deleted').toArray();
 	if (deletedEps.length > 0) {
+		// Batch by show — one network call per show instead of one per episode
+		const byShow = new Map<number, typeof deletedEps>();
 		for (const ep of deletedEps) {
-			const { error } = await client.from('user_watched_episodes').delete()
+			if (!byShow.has(ep.tvmazeShowId)) byShow.set(ep.tvmazeShowId, []);
+			byShow.get(ep.tvmazeShowId)!.push(ep);
+		}
+		for (const [showId, eps] of byShow) {
+			const epIds = eps.map((e) => e.tvmazeEpisodeId);
+			const { error } = await client
+				.from('user_watched_episodes')
+				.delete()
 				.eq('user_id', user.id)
-				.eq('tvmaze_show_id', ep.tvmazeShowId)
-				.eq('tvmaze_episode_id', ep.tvmazeEpisodeId);
-			if (!error && ep.id) await db.watchedEpisodes.delete(ep.id);
+				.eq('tvmaze_show_id', showId)
+				.in('tvmaze_episode_id', epIds);
+			if (!error) {
+				const localIds = eps.filter((e) => e.id).map((e) => e.id!);
+				if (localIds.length) await db.watchedEpisodes.bulkDelete(localIds);
+			}
 		}
 	}
 
@@ -202,12 +214,23 @@ export async function syncLocalDexieToSupabase(user: User) {
 
 	const deletedItems = await db.userListItems.filter((i) => i._syncStatus === 'deleted').toArray();
 	if (deletedItems.length > 0) {
+		const itemsByList = new Map<number, typeof deletedItems>();
 		for (const item of deletedItems) {
-			const { error } = await client.from('user_list_items').delete()
+			if (!itemsByList.has(item.listId)) itemsByList.set(item.listId, []);
+			itemsByList.get(item.listId)!.push(item);
+		}
+		for (const [listId, items] of itemsByList) {
+			const tvmazeIds = items.map((i) => i.tvmazeId);
+			const { error } = await client
+				.from('user_list_items')
+				.delete()
 				.eq('user_id', user.id)
-				.eq('list_id', item.listId)
-				.eq('tvmaze_id', item.tvmazeId);
-			if (!error && item.id) await db.userListItems.delete(item.id);
+				.eq('list_id', listId)
+				.in('tvmaze_id', tvmazeIds);
+			if (!error) {
+				const localIds = items.filter((i) => i.id).map((i) => i.id!);
+				if (localIds.length) await db.userListItems.bulkDelete(localIds);
+			}
 		}
 	}
 }
@@ -369,13 +392,19 @@ export async function performFullSync(user: User) {
 }
 
 // Auto sync helper triggered on store mutations
-export async function triggerAutoSync() {
-	const user = await getCurrentUser();
-	if (user) {
-		try {
-			await syncLocalDexieToSupabase(user);
-		} catch (err) {
-			console.warn('Auto sync warning:', err);
+// Accepts an optional user to skip getSession() and prevent deadlocks
+let _syncInProgress = false;
+export async function triggerAutoSync(user?: User | null) {
+	if (_syncInProgress) return; // debounce concurrent calls
+	_syncInProgress = true;
+	try {
+		const resolvedUser = user ?? await getCurrentUser();
+		if (resolvedUser) {
+			await syncLocalDexieToSupabase(resolvedUser);
 		}
+	} catch (err) {
+		console.warn('Auto sync warning:', err);
+	} finally {
+		_syncInProgress = false;
 	}
 }
