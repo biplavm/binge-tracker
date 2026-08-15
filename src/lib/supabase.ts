@@ -10,7 +10,6 @@ let _supabase: SupabaseClient | null = null;
 export function getSupabase(): SupabaseClient | null {
 	if (typeof window === 'undefined') return null;
 	if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('demo-project')) {
-		console.warn('Supabase URL not configured in .env (VITE_SUPABASE_URL)');
 		return null;
 	}
 	if (!_supabase) {
@@ -75,7 +74,8 @@ export async function syncLocalDexieToSupabase(user: User) {
 				network: s.network || null
 			}));
 
-			await client.from('user_shows').upsert(showsToUpsert, { onConflict: 'user_id,tvmaze_id' });
+			const { error } = await client.from('user_shows').upsert(showsToUpsert, { onConflict: 'user_id,tvmaze_id' });
+			if (error) console.error('Supabase user_shows upsert error:', error.message);
 		}
 
 		if (localEpisodes.length > 0) {
@@ -87,12 +87,13 @@ export async function syncLocalDexieToSupabase(user: User) {
 				episode_number: e.episodeNumber
 			}));
 
-			await client
+			const { error } = await client
 				.from('user_watched_episodes')
 				.upsert(epToUpsert, { onConflict: 'user_id,tvmaze_show_id,tvmaze_episode_id' });
+			if (error) console.error('Supabase user_watched_episodes upsert error:', error.message);
 		}
 	} catch (err) {
-		console.warn('Supabase cloud sync notification:', err);
+		console.warn('Supabase cloud sync error:', err);
 	}
 }
 
@@ -101,12 +102,14 @@ export async function fetchSupabaseToDexie(user: User) {
 	if (!client) return;
 
 	try {
-		const { data: cloudShows } = await client
+		const { data: cloudShows, error: showErr } = await client
 			.from('user_shows')
 			.select('*')
 			.eq('user_id', user.id);
 
-		if (cloudShows && cloudShows.length > 0) {
+		if (showErr) {
+			console.error('Error fetching cloud shows from Supabase:', showErr.message);
+		} else if (cloudShows && cloudShows.length > 0) {
 			for (const cs of cloudShows) {
 				const existing = await db.shows.get(cs.tvmaze_id);
 				await db.shows.put({
@@ -124,12 +127,14 @@ export async function fetchSupabaseToDexie(user: User) {
 			}
 		}
 
-		const { data: cloudEps } = await client
+		const { data: cloudEps, error: epErr } = await client
 			.from('user_watched_episodes')
 			.select('*')
 			.eq('user_id', user.id);
 
-		if (cloudEps && cloudEps.length > 0) {
+		if (epErr) {
+			console.error('Error fetching cloud episodes from Supabase:', epErr.message);
+		} else if (cloudEps && cloudEps.length > 0) {
 			for (const ce of cloudEps) {
 				const existing = await db.watchedEpisodes
 					.where('[tvmazeShowId+tvmazeEpisodeId]')
@@ -148,6 +153,12 @@ export async function fetchSupabaseToDexie(user: User) {
 			}
 		}
 	} catch (err) {
-		console.warn('Fetch Supabase data notification:', err);
+		console.warn('Fetch Supabase data error:', err);
 	}
+}
+
+// 2-Way Sync helper
+export async function performFullSync(user: User) {
+	await fetchSupabaseToDexie(user);
+	await syncLocalDexieToSupabase(user);
 }

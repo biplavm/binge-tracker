@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tracker } from '$lib/stores/tracker.svelte';
-	import { getSupabase, signOutUser, syncLocalDexieToSupabase, fetchSupabaseToDexie } from '$lib/supabase';
+	import { getSupabase, signOutUser, performFullSync } from '$lib/supabase';
 	import type { User } from '@supabase/supabase-js';
 	import AuthModal from '$lib/components/AuthModal.svelte';
 	import { Film, Search, Eye, EyeOff, Tv, Bookmark, BarChart3, Sparkles, Download, X, User as UserIcon, CloudCheck, LogOut, Share, PlusSquare, Smartphone, ListPlus } from '@lucide/svelte';
@@ -21,10 +21,12 @@
 
 		const sb = getSupabase();
 		if (sb) {
-			sb.auth.getSession().then((res: any) => {
+			sb.auth.getSession().then(async (res: any) => {
 				currentUser = res?.data?.session?.user ?? null;
 				if (currentUser) {
-					fetchSupabaseToDexie(currentUser);
+					isSyncing = true;
+					await performFullSync(currentUser);
+					isSyncing = false;
 				}
 			});
 
@@ -32,8 +34,7 @@
 				currentUser = session?.user ?? null;
 				if (currentUser) {
 					isSyncing = true;
-					await syncLocalDexieToSupabase(currentUser);
-					await fetchSupabaseToDexie(currentUser);
+					await performFullSync(currentUser);
 					isSyncing = false;
 				}
 			});
