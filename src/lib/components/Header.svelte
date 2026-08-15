@@ -62,7 +62,7 @@
 	}
 	async function handleUserSignOut() {
 		try {
-			await signOutUser();
+			await signOutUser(currentUser);
 		} catch (err) {
 			console.error('Sign out failed:', err);
 		}

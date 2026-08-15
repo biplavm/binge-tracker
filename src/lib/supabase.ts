@@ -52,13 +52,57 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
 	});
 }
 
-export async function signOutUser() {
+export async function signOutUser(user?: User | null) {
+	console.log('signOutUser called');
 	const client = getSupabase();
+	console.log('client:', !!client);
 	if (!client) return;
-	const { error } = await client.auth.signOut();
-	if (error) {
-		console.error('Sign out error:', error.message);
-		throw error;
+
+	// Force final sync
+	console.log('User provided:', !!user);
+	if (user) {
+		try {
+			console.log('Calling final sync...');
+			await syncLocalDexieToSupabase(user);
+			console.log('Final sync complete.');
+		} catch (err) {
+			console.warn('Final sync failed:', err);
+		}
+	}
+
+	console.log('Calling auth.signOut()...');
+	try {
+		await Promise.race([
+			client.auth.signOut(),
+			new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+		]);
+	} catch (e) {
+		console.warn('auth.signOut() timed out or failed:', e);
+	}
+	
+	// Manually clear Supabase auth tokens from localStorage just to be safe
+	if (typeof window !== 'undefined') {
+		for (let i = 0; i < localStorage.length; i++) {
+			const key = localStorage.key(i);
+			if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+				localStorage.removeItem(key);
+			}
+		}
+	}
+	
+	console.log('auth.signOut() successful. Wiping DB...');
+
+	// Wipe local database
+	await Promise.all([
+		db.shows.clear(),
+		db.watchedEpisodes.clear(),
+		db.userLists.clear(),
+		db.userListItems.clear()
+	]);
+	console.log('DB wiped. Reloading window.');
+
+	if (typeof window !== 'undefined') {
+		window.location.reload();
 	}
 }
 
