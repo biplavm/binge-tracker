@@ -7,6 +7,7 @@
 	import { searchShows, getShowDetails, type TVMazeShow } from '$lib/services/tvmaze';
 	import { db, type TrackedShow, type WatchedEpisode } from '$lib/db';
 	import { liveQuery } from 'dexie';
+	import { pwaInfo } from 'virtual:pwa-info';
 
 	let { children } = $props();
 
@@ -48,6 +49,10 @@
 	});
 
 </script>
+
+<svelte:head>
+	{@html pwaInfo?.webManifest?.linkTag ?? ''}
+</svelte:head>
 
 <div class="min-h-screen flex flex-col bg-[#fcfbf7] text-stone-900 selection:bg-amber-400 selection:text-stone-950">
 	<Header />
