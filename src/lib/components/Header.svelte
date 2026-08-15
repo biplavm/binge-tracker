@@ -19,6 +19,14 @@
 			canInstallPWA = true;
 		});
 
+		window.addEventListener('online', async () => {
+			if (currentUser) {
+				isSyncing = true;
+				await performFullSync(currentUser);
+				isSyncing = false;
+			}
+		});
+
 		const sb = getSupabase();
 		if (sb) {
 			sb.auth.getSession().then(async (res: any) => {
