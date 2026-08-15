@@ -54,13 +54,17 @@
 		isLoading = true;
 		errorMsg = null;
 		try {
-			const { error } = await signInWithOAuth(provider);
-			if (error) {
-				errorMsg = `${provider.toUpperCase()} Auth: ${error.message}. Make sure Google OAuth is enabled in your Supabase dashboard.`;
+			const res = await signInWithOAuth(provider);
+			if (res?.error) {
+				if (res.error.message?.includes('Client unavailable')) {
+					errorMsg = 'Supabase Project URL & Anon Key missing. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.';
+				} else {
+					errorMsg = `${provider.toUpperCase()} Auth: ${res.error.message}. Make sure Google OAuth is enabled in your Supabase dashboard.`;
+				}
 				isLoading = false;
 			}
 		} catch (err: any) {
-			errorMsg = err.message || 'OAuth error occurred. Use Email login or enable Google in Supabase.';
+			errorMsg = err.message || 'OAuth error occurred.';
 			isLoading = false;
 		}
 	}

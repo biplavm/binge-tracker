@@ -9,6 +9,10 @@ let _supabase: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient | null {
 	if (typeof window === 'undefined') return null;
+	if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('demo-project')) {
+		console.warn('Supabase URL not configured in .env (VITE_SUPABASE_URL)');
+		return null;
+	}
 	if (!_supabase) {
 		_supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 			auth: {
