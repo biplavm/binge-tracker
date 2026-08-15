@@ -58,49 +58,28 @@ export async function signOutUser(user?: User | null) {
 	console.log('client:', !!client);
 	if (!client) return;
 
-	// Force final sync
-	console.log('User provided:', !!user);
-	if (user) {
-		try {
-			console.log('Calling final sync...');
-			await syncLocalDexieToSupabase(user);
-			console.log('Final sync complete.');
-		} catch (err) {
-			console.warn('Final sync failed:', err);
-		}
-	}
+	// auth.signOut fires in background — don't await it
+	client.auth.signOut().catch((err) => console.warn('auth.signOut failed:', err));
 
-	console.log('Calling auth.signOut()...');
-	try {
-		await Promise.race([
-			client.auth.signOut(),
-			new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
-		]);
-	} catch (e) {
-		console.warn('auth.signOut() timed out or failed:', e);
-	}
-	
-	// Manually clear Supabase auth tokens from localStorage just to be safe
+	// Clear localStorage tokens immediately
 	if (typeof window !== 'undefined') {
-		for (let i = 0; i < localStorage.length; i++) {
+		for (let i = localStorage.length - 1; i >= 0; i--) {
 			const key = localStorage.key(i);
 			if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
 				localStorage.removeItem(key);
 			}
 		}
 	}
-	
-	console.log('auth.signOut() successful. Wiping DB...');
 
-	// Wipe local database
+	// Wipe local DB and reload immediately — optimistic
 	await Promise.all([
 		db.shows.clear(),
 		db.watchedEpisodes.clear(),
 		db.userLists.clear(),
 		db.userListItems.clear()
 	]);
-	console.log('DB wiped. Reloading window.');
 
+	console.log('DB wiped. Reloading.');
 	if (typeof window !== 'undefined') {
 		window.location.reload();
 	}

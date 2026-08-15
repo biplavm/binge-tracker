@@ -3,7 +3,7 @@ import type { TVMazeShow, TVMazeEpisode } from '$lib/services/tvmaze';
 import { searchShows } from '$lib/services/tvmaze';
 import { triggerAutoSync, getCurrentUser } from '$lib/supabase';
 
-export type SortOption = 'last_watched' | 'user_rating' | 'progress' | 'title' | 'year';
+export type SortOption = 'last_watched' | 'user_rating' | 'progress' | 'title' | 'year' | 'latest';
 
 class TrackerStore {
 	antiSpoilerMode = $state<boolean>(true);
@@ -15,7 +15,7 @@ class TrackerStore {
 	searchYear = $state<string>('');
 
 	// Filter & Sort State
-	sortBy = $state<SortOption>('last_watched');
+	sortBy = $state<SortOption>('latest');
 	filterGenre = $state<string>('all');
 	filterNetwork = $state<string>('all');
 

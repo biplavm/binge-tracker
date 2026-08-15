@@ -101,6 +101,18 @@
 				const pctB = epsB.length > 0 ? wB / epsB.length : 0;
 				return pctB - pctA;
 			}
+			if (tracker.sortBy === 'latest') {
+				const fullA = showDetailsCache[a.tvmazeId];
+				const fullB = showDetailsCache[b.tvmazeId];
+				const nextEpA = fullA?._embedded?.nextepisode;
+				const nextEpB = fullB?._embedded?.nextepisode;
+				
+				// Shows with upcoming episodes come first, sorted by soonest to air
+				const dateA = nextEpA?.airdate ? new Date(nextEpA.airdate).getTime() : Infinity;
+				const dateB = nextEpB?.airdate ? new Date(nextEpB.airdate).getTime() : Infinity;
+				
+				return dateA - dateB;
+			}
 			// Default: last_watched
 			const lastA = watchedEpisodesList
 				.filter((e) => e.tvmazeShowId === a.tvmazeId)

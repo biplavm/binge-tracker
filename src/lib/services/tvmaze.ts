@@ -66,6 +66,25 @@ export function getDaysUntil(dateString?: string): number | null {
 	return null;
 }
 
+export function formatRelativeTime(days: number): string {
+	const absDays = Math.abs(days);
+	if (absDays === 0) return 'Today';
+	
+	if (absDays < 30) {
+		return `${absDays}d`;
+	} else if (absDays < 365) {
+		const months = Math.floor(absDays / 30);
+		return `${months}mo`;
+	} else {
+		const years = Math.floor(absDays / 365);
+		const remainingMonths = Math.floor((absDays % 365) / 30);
+		if (remainingMonths > 0) {
+			return `${years}y ${remainingMonths}mo`;
+		}
+		return `${years}y`;
+	}
+}
+
 const BASE_URL = 'https://api.tvmaze.com';
 
 // 1. Search shows with title query and optional release year filter

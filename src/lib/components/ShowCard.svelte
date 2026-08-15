@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TVMazeShow, TVMazeEpisode } from '$lib/services/tvmaze';
 	import type { TrackedShow } from '$lib/db';
-	import { formatLongDate, getDaysUntil } from '$lib/services/tvmaze';
+	import { formatLongDate, getDaysUntil, formatRelativeTime } from '$lib/services/tvmaze';
 	import { tracker } from '$lib/stores/tracker.svelte';
 	import { getSupabase } from '$lib/supabase';
 	import { db } from '$lib/db';
@@ -79,26 +79,18 @@
 			.sort((a, b) => a.season - b.season);
 	});
 
-	// Personal Rating & Review State
-	let currentRating = $state(0);
+	// Personal Rating State
 	let showReviewInput = $state(false);
-	let reviewText = $state('');
-
-	$effect(() => {
-		currentRating = userRating;
-		reviewText = userReview || '';
-	});
+	let currentRating = $state(userRating ?? 0);
+	let hoveredStar = $state(0);
 
 	async function setPersonalRating(rating: number) {
-		currentRating = rating;
+		// Toggle off if clicking the active rating
+		const newRating = rating === currentRating ? 0 : rating;
+		currentRating = newRating;
+		hoveredStar = 0;
 		if (showId) {
-			await tracker.updateUserRating(showId, rating, reviewText);
-		}
-	}
-
-	async function saveReview() {
-		if (showId) {
-			await tracker.updateUserRating(showId, currentRating, reviewText);
+			await tracker.updateUserRating(showId, newRating, '');
 		}
 		showReviewInput = false;
 	}
@@ -162,11 +154,11 @@
 					<button
 						onclick={() => (showReviewInput = !showReviewInput)}
 						class={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
-							reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+							currentRating > 0 ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
 						}`}
-						title="Personal Notes / Review"
+						title="Personal Rating"
 					>
-						<MessageSquare class="h-4 w-4" />
+						<Star class="h-4 w-4" />
 					</button>
 
 					<button
@@ -190,67 +182,51 @@
 				</div>
 			</div>
 
-			<!-- Inline Review / Personal Note Input -->
+			<!-- Inline Rating Input -->
 			{#if showReviewInput}
 				<div class="mt-2 space-y-3 rounded-xl bg-stone-50 p-3 border border-stone-200">
 					<div class="flex flex-col gap-1.5">
 						<span class="text-xs font-bold text-stone-500 uppercase tracking-wider">My Score</span>
-						<div class="flex flex-wrap items-center gap-1">
+						<div class="flex items-center gap-1">
+							<div class="flex items-center gap-0.5">
 							{#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as star}
 								<button
+									type="button"
 									onclick={() => setPersonalRating(star)}
-									class="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-amber-100/50 p-1 focus:outline-none transition-transform hover:scale-110"
-									title={`Rate ${star}/10`}
+									onmouseenter={() => { hoveredStar = star; }}
+									onmouseleave={() => { hoveredStar = 0; }}
+									class="flex h-8 w-8 items-center justify-center rounded-lg p-1 focus:outline-none"
+									title={star === currentRating ? 'Click to clear rating' : `Rate ${star}/10`}
 								>
 									<Star
-										class={`h-4 w-4 sm:h-5 sm:w-5 ${
-											star <= currentRating
+										class={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
+											(hoveredStar > 0 ? star <= hoveredStar : star <= currentRating)
 												? 'fill-amber-500 text-amber-500'
-												: 'text-stone-300 hover:text-amber-400'
+												: hoveredStar > 0
+													? 'text-stone-200'
+													: 'text-stone-300'
 										}`}
 									/>
 								</button>
 							{/each}
-							{#if currentRating > 0}
-								<span class="text-xs font-black text-amber-900 ml-2">{currentRating}/10</span>
-							{/if}
+							</div>
+							<!-- Live score label -->
+							<span class="ml-1 min-w-[2.5rem] text-xs font-black text-amber-900 transition-all">
+								{#if hoveredStar > 0}
+									{hoveredStar}/10
+								{:else if currentRating > 0}
+									{currentRating}/10
+								{/if}
+							</span>
 						</div>
-					</div>
-
-					<textarea
-						bind:value={reviewText}
-						placeholder="Write personal review notes or thoughts..."
-						rows="2"
-						class="w-full rounded-xl bg-white p-3 text-sm text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none"
-					></textarea>
-					<div class="flex justify-end gap-2">
-						<button
-							onclick={() => (showReviewInput = false)}
-							class="flex min-h-11 min-w-[80px] items-center justify-center rounded-xl px-3 font-bold text-stone-500 hover:text-stone-800 text-xs sm:text-sm transition-colors"
-						>
-							Cancel
-						</button>
-						<button
-							onclick={saveReview}
-							class="flex min-h-11 min-w-[80px] items-center justify-center rounded-xl bg-amber-500 px-4 font-extrabold text-stone-950 hover:bg-amber-400 text-xs sm:text-sm transition-colors shadow-sm"
-						>
-							Save Note
-						</button>
 					</div>
 				</div>
-			{:else if reviewText || currentRating > 0}
+			{:else if currentRating > 0}
 				<div class="mt-2 flex flex-col gap-1.5 rounded-xl bg-amber-50/80 p-3 border border-amber-200/60">
-					{#if currentRating > 0}
-						<div class="flex items-center gap-1">
-							<Star class="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-							<span class="text-[11px] font-black text-amber-900 tracking-wide uppercase">My Score: {currentRating}/10</span>
-						</div>
-					{/if}
-					{#if reviewText}
-						<p class="text-[11px] sm:text-xs italic text-stone-700 leading-relaxed line-clamp-3">
-							"{reviewText}"
-						</p>
-					{/if}
+					<div class="flex items-center gap-1">
+						<Star class="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+						<span class="text-[11px] font-black text-amber-900 tracking-wide uppercase">My Score: {currentRating}/10</span>
+					</div>
 				</div>
 			{/if}
 
@@ -265,7 +241,7 @@
 								<span class="hidden sm:inline">{formatLongDate(nextEpisode.airdate)}</span>
 								{#if daysAgo !== null}
 									<span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-amber-900 font-bold border border-amber-300">
-										{daysAgo === 0 ? 'Aired Today' : `${Math.abs(daysAgo)}d ago`}
+										{daysAgo === 0 ? 'Aired Today' : `${formatRelativeTime(daysAgo)} ago`}
 									</span>
 								{/if}
 							</span>
@@ -287,10 +263,8 @@
 								<span>
 									{#if daysLeft === 0}
 										Airing Today!
-									{:else if daysLeft === 1}
-										1 Day Left
 									{:else}
-										{daysLeft} Days Left
+										{formatRelativeTime(daysLeft)} Left
 									{/if}
 								</span>
 							</span>

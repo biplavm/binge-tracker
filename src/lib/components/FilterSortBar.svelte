@@ -11,11 +11,11 @@
 	} = $props();
 
 	const hasActiveFilters = $derived(
-		tracker.filterGenre !== 'all' || tracker.filterNetwork !== 'all' || tracker.sortBy !== 'last_watched'
+		tracker.filterGenre !== 'all' || tracker.filterNetwork !== 'all' || tracker.sortBy !== 'latest'
 	);
 
 	function resetFilters() {
-		tracker.sortBy = 'last_watched';
+		tracker.sortBy = 'latest';
 		tracker.filterGenre = 'all';
 		tracker.filterNetwork = 'all';
 	}
@@ -36,12 +36,14 @@
 				<option value="progress">Progress %</option>
 				<option value="title">Title (A-Z)</option>
 				<option value="year">Release Year</option>
+				<option value="latest">Latest (Upcoming Episode)</option>
 			</select>
 			<span class="font-extrabold text-stone-900 group-hover:text-amber-700 transition-colors pointer-events-none">
 				{#if tracker.sortBy === 'last_watched'}Recently Watched
 				{:else if tracker.sortBy === 'user_rating'}My Rating
 				{:else if tracker.sortBy === 'progress'}Progress %
 				{:else if tracker.sortBy === 'title'}Title (A-Z)
+				{:else if tracker.sortBy === 'latest'}Latest (Upcoming)
 				{:else}Release Year{/if}
 			</span>
 			<svg class="h-3 w-3 text-stone-400 shrink-0 ml-1 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
