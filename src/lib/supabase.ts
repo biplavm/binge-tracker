@@ -65,6 +65,8 @@ export async function syncLocalDexieToSupabase(user: User) {
 				poster: s.poster || null,
 				status: s.status,
 				rating: s.rating || null,
+				user_rating: s.userRating || null,
+				user_review: s.userReview || null,
 				genres: s.genres || [],
 				network: s.network || null
 			}));
@@ -102,15 +104,18 @@ export async function fetchSupabaseToDexie(user: User) {
 
 		if (cloudShows && cloudShows.length > 0) {
 			for (const cs of cloudShows) {
+				const existing = await db.shows.get(cs.tvmaze_id);
 				await db.shows.put({
 					tvmazeId: cs.tvmaze_id,
 					name: cs.name,
 					poster: cs.poster,
 					status: cs.status,
 					rating: cs.rating,
+					userRating: cs.user_rating || existing?.userRating,
+					userReview: cs.user_review || existing?.userReview,
 					genres: cs.genres || [],
 					network: cs.network,
-					addedAt: new Date(cs.added_at)
+					addedAt: existing?.addedAt || new Date(cs.added_at)
 				});
 			}
 		}
