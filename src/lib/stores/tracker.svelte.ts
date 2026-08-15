@@ -1,15 +1,22 @@
-import { db, type TrackedShow } from '$lib/db';
+import { db, type TrackedShow, type UserList, type UserListItem } from '$lib/db';
 import type { TVMazeShow, TVMazeEpisode } from '$lib/services/tvmaze';
 import { searchShows } from '$lib/services/tvmaze';
+
+export type SortOption = 'last_watched' | 'user_rating' | 'progress' | 'title' | 'year';
 
 class TrackerStore {
 	antiSpoilerMode = $state<boolean>(true);
 	selectedShowIdForModal = $state<number | null>(null);
-	activeTab = $state<string>('watching');
+	activeTab = $state<string>('watching'); // 'watching' | 'yet_to_watch' | 'lists' | 'stats' | 'discover'
 	searchResults = $state<TVMazeShow[]>([]);
 	isSearching = $state<boolean>(false);
 	searchQuery = $state<string>('');
 	searchYear = $state<string>('');
+
+	// Filter & Sort State
+	sortBy = $state<SortOption>('last_watched');
+	filterGenre = $state<string>('all');
+	filterNetwork = $state<string>('all');
 
 	constructor() {
 		if (typeof window !== 'undefined' && window.localStorage) {
@@ -82,9 +89,52 @@ class TrackerStore {
 		await db.shows.put(show);
 	}
 
+	async updateUserRating(tvmazeId: number, userRating: number, userReview?: string) {
+		const show = await db.shows.get(tvmazeId);
+		if (show) {
+			await db.shows.update(tvmazeId, { userRating, userReview });
+		}
+	}
+
 	async removeShow(tvmazeShowId: number) {
 		await db.shows.delete(tvmazeShowId);
 		await db.watchedEpisodes.where({ tvmazeShowId }).delete();
+	}
+
+	// Custom List Management
+	async createCustomList(name: string, description?: string) {
+		return await db.userLists.add({
+			name,
+			description,
+			isPublic: true,
+			createdAt: new Date()
+		});
+	}
+
+	async addToList(listId: number, show: { tvmazeId: number; name: string; poster?: string }) {
+		const existing = await db.userListItems
+			.where('[listId+tvmazeId]')
+			.equals([listId, show.tvmazeId])
+			.first();
+
+		if (!existing) {
+			await db.userListItems.add({
+				listId,
+				tvmazeId: show.tvmazeId,
+				showName: show.name,
+				poster: show.poster,
+				addedAt: new Date()
+			});
+		}
+	}
+
+	async removeFromList(itemId: number) {
+		await db.userListItems.delete(itemId);
+	}
+
+	async deleteList(listId: number) {
+		await db.userLists.delete(listId);
+		await db.userListItems.where({ listId }).delete();
 	}
 }
 

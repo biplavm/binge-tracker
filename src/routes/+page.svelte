@@ -7,8 +7,10 @@
 	import StatsDashboard from '$lib/components/StatsDashboard.svelte';
 	import SimilarShows from '$lib/components/SimilarShows.svelte';
 	import BingePaceModal from '$lib/components/BingePaceModal.svelte';
+	import FilterSortBar from '$lib/components/FilterSortBar.svelte';
+	import CustomListsView from '$lib/components/CustomListsView.svelte';
 	import { liveQuery } from 'dexie';
-	import { Tv, Bookmark, Sparkles, Plus, Search, Film, Flame, Star } from '@lucide/svelte';
+	import { Tv, Bookmark, Sparkles, Plus, Search, Film, Flame, Star, ListPlus } from '@lucide/svelte';
 
 	// Dexie live queries for tracked shows and watched episodes
 	let trackedShowsList = $state<TrackedShow[]>([]);
@@ -29,7 +31,6 @@
 
 	// Cache for deep embedded TVMazeShow details per show ID
 	let showDetailsCache = $state<Record<number, TVMazeShow>>({});
-	let isLoadingDetails = $state<boolean>(false);
 
 	// Fetch full details (episodes + nextepisode) for all tracked shows
 	$effect(() => {
@@ -52,9 +53,71 @@
 		});
 	});
 
-	// Filtered shows by status
-	const watchingShows = $derived(trackedShowsList.filter((s) => s.status === 'watching'));
-	const backlogShows = $derived(trackedShowsList.filter((s) => s.status === 'yet_to_watch'));
+	// Dynamically compute available unique Genres and Networks from tracked shows
+	const availableGenres = $derived(
+		Array.from(new Set(trackedShowsList.flatMap((s) => s.genres || []))).sort()
+	);
+	const availableNetworks = $derived(
+		Array.from(new Set(trackedShowsList.map((s) => s.network).filter(Boolean) as string[])).sort()
+	);
+
+	// Filter and Sort helper
+	function processShows(shows: TrackedShow[]) {
+		let result = [...shows];
+
+		// Filter by Genre
+		if (tracker.filterGenre !== 'all') {
+			result = result.filter((s) => (s.genres || []).includes(tracker.filterGenre));
+		}
+
+		// Filter by Network
+		if (tracker.filterNetwork !== 'all') {
+			result = result.filter((s) => s.network === tracker.filterNetwork);
+		}
+
+		// Sort
+		result.sort((a, b) => {
+			if (tracker.sortBy === 'user_rating') {
+				return (b.userRating || 0) - (a.userRating || 0);
+			}
+			if (tracker.sortBy === 'title') {
+				return a.name.localeCompare(b.name);
+			}
+			if (tracker.sortBy === 'year') {
+				const fullA = showDetailsCache[a.tvmazeId];
+				const fullB = showDetailsCache[b.tvmazeId];
+				const yearA = parseInt(fullA?.premiered?.slice(0, 4) || '0', 10);
+				const yearB = parseInt(fullB?.premiered?.slice(0, 4) || '0', 10);
+				return yearB - yearA;
+			}
+			if (tracker.sortBy === 'progress') {
+				const fullA = showDetailsCache[a.tvmazeId];
+				const fullB = showDetailsCache[b.tvmazeId];
+				const epsA = fullA?._embedded?.episodes || [];
+				const epsB = fullB?._embedded?.episodes || [];
+				const wA = watchedEpisodesList.filter((e) => e.tvmazeShowId === a.tvmazeId).length;
+				const wB = watchedEpisodesList.filter((e) => e.tvmazeShowId === b.tvmazeId).length;
+				const pctA = epsA.length > 0 ? wA / epsA.length : 0;
+				const pctB = epsB.length > 0 ? wB / epsB.length : 0;
+				return pctB - pctA;
+			}
+			// Default: last_watched
+			const lastA = watchedEpisodesList
+				.filter((e) => e.tvmazeShowId === a.tvmazeId)
+				.sort((x, y) => new Date(y.watchedAt).getTime() - new Date(x.watchedAt).getTime())[0];
+			const lastB = watchedEpisodesList
+				.filter((e) => e.tvmazeShowId === b.tvmazeId)
+				.sort((x, y) => new Date(y.watchedAt).getTime() - new Date(x.watchedAt).getTime())[0];
+			const timeA = lastA ? new Date(lastA.watchedAt).getTime() : new Date(a.addedAt).getTime();
+			const timeB = lastB ? new Date(lastB.watchedAt).getTime() : new Date(b.addedAt).getTime();
+			return timeB - timeA;
+		});
+
+		return result;
+	}
+
+	const watchingShows = $derived(processShows(trackedShowsList.filter((s) => s.status === 'watching')));
+	const backlogShows = $derived(processShows(trackedShowsList.filter((s) => s.status === 'yet_to_watch')));
 
 	// Binge Pace Modal Show target
 	let paceModalShow = $state<TVMazeShow | null>(null);
@@ -104,6 +167,14 @@
 				{/if}
 			</div>
 
+			<!-- Filter & Sort Controls Bar -->
+			{#if trackedShowsList.length > 0}
+				<FilterSortBar
+					availableGenres={availableGenres}
+					availableNetworks={availableNetworks}
+				/>
+			{/if}
+
 			{#if watchingShows.length > 0}
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 					{#each watchingShows as tracked}
@@ -116,6 +187,8 @@
 							<ShowCard
 								show={fullShow}
 								watchedIds={showWatchedIds}
+								userRating={tracked.userRating}
+								userReview={tracked.userReview}
 								onOpenPaceModal={(s) => (paceModalShow = s)}
 							/>
 						{:else}
@@ -138,9 +211,9 @@
 					<div class="mx-auto flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 border border-amber-300 mb-3 sm:mb-4">
 						<Tv class="h-7 w-7 sm:h-8 sm:w-8" />
 					</div>
-					<h3 class="text-base sm:text-lg font-extrabold text-stone-900 font-heading">No shows currently tracked</h3>
+					<h3 class="text-base sm:text-lg font-extrabold text-stone-900 font-heading">No shows match filters</h3>
 					<p class="text-xs text-stone-500 mt-1 leading-relaxed font-medium">
-						Search for your favorite series or browse top recommendations to start tracking episodes, calculating binge paces, and unlocking personal viewing statistics!
+						Search for your favorite series or adjust your filters to view tracked shows!
 					</p>
 					<button
 						onclick={() => (tracker.activeTab = 'discover')}
@@ -167,6 +240,13 @@
 					</p>
 				</div>
 			</div>
+
+			{#if trackedShowsList.length > 0}
+				<FilterSortBar
+					availableGenres={availableGenres}
+					availableNetworks={availableNetworks}
+				/>
+			{/if}
 
 			{#if backlogShows.length > 0}
 				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -198,7 +278,12 @@
 		</div>
 	{/if}
 
-	<!-- Tab 3: TV Wrapped / Stats Dashboard -->
+	<!-- Tab 3: Custom Lists -->
+	{#if tracker.activeTab === 'lists'}
+		<CustomListsView trackedShows={trackedShowsList} />
+	{/if}
+
+	<!-- Tab 4: TV Wrapped / Stats Dashboard -->
 	{#if tracker.activeTab === 'stats'}
 		<StatsDashboard
 			trackedShows={trackedShowsList}
@@ -206,7 +291,7 @@
 		/>
 	{/if}
 
-	<!-- Tab 4: Discover & Recommendations -->
+	<!-- Tab 5: Discover & Recommendations -->
 	{#if tracker.activeTab === 'discover'}
 		<div class="space-y-6 sm:space-y-8">
 			<!-- Search Results Grid -->

@@ -3,7 +3,7 @@
 	import { getSupabase, signOutUser, syncLocalDexieToSupabase, fetchSupabaseToDexie } from '$lib/supabase';
 	import type { User } from '@supabase/supabase-js';
 	import AuthModal from '$lib/components/AuthModal.svelte';
-	import { Film, Search, Eye, EyeOff, Tv, Bookmark, BarChart3, Sparkles, Download, X, User as UserIcon, CloudCheck, LogOut, Share, PlusSquare, Smartphone } from '@lucide/svelte';
+	import { Film, Search, Eye, EyeOff, Tv, Bookmark, BarChart3, Sparkles, Download, X, User as UserIcon, CloudCheck, LogOut, Share, PlusSquare, Smartphone, ListPlus } from '@lucide/svelte';
 
 	let deferredPrompt = $state<any>(null);
 	let canInstallPWA = $state<boolean>(true);
@@ -198,6 +198,18 @@
 		</button>
 
 		<button
+			onclick={() => (tracker.activeTab = 'lists')}
+			class={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shrink-0 ${
+				tracker.activeTab === 'lists'
+					? 'bg-amber-500/15 text-amber-900 border border-amber-400/50 shadow-sm'
+					: 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+			}`}
+		>
+			<ListPlus class="h-4 w-4 text-amber-600" />
+			<span>Custom Lists</span>
+		</button>
+
+		<button
 			onclick={() => (tracker.activeTab = 'stats')}
 			class={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shrink-0 ${
 				tracker.activeTab === 'stats'
@@ -227,42 +239,52 @@
 <div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 py-1.5 shadow-lg flex items-center justify-around">
 	<button
 		onclick={() => (tracker.activeTab = 'watching')}
-		class={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
+		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'watching' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
-		<Tv class={`h-5 w-5 ${tracker.activeTab === 'watching' ? 'text-amber-600' : 'text-stone-400'}`} />
-		<span class="text-[10px]">Watching</span>
+		<Tv class={`h-4 w-4 ${tracker.activeTab === 'watching' ? 'text-amber-600' : 'text-stone-400'}`} />
+		<span class="text-[9px]">Watching</span>
 	</button>
 
 	<button
 		onclick={() => (tracker.activeTab = 'yet_to_watch')}
-		class={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
+		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'yet_to_watch' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
-		<Bookmark class={`h-5 w-5 ${tracker.activeTab === 'yet_to_watch' ? 'text-amber-600' : 'text-stone-400'}`} />
-		<span class="text-[10px]">Queue</span>
+		<Bookmark class={`h-4 w-4 ${tracker.activeTab === 'yet_to_watch' ? 'text-amber-600' : 'text-stone-400'}`} />
+		<span class="text-[9px]">Queue</span>
+	</button>
+
+	<button
+		onclick={() => (tracker.activeTab = 'lists')}
+		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
+			tracker.activeTab === 'lists' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
+		}`}
+	>
+		<ListPlus class={`h-4 w-4 ${tracker.activeTab === 'lists' ? 'text-amber-600' : 'text-stone-400'}`} />
+		<span class="text-[9px]">Lists</span>
 	</button>
 
 	<button
 		onclick={() => (tracker.activeTab = 'stats')}
-		class={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
+		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'stats' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
-		<BarChart3 class={`h-5 w-5 ${tracker.activeTab === 'stats' ? 'text-amber-600' : 'text-stone-400'}`} />
-		<span class="text-[10px]">Wrapped</span>
+		<BarChart3 class={`h-4 w-4 ${tracker.activeTab === 'stats' ? 'text-amber-600' : 'text-stone-400'}`} />
+		<span class="text-[9px]">Wrapped</span>
 	</button>
 
 	<button
 		onclick={() => (tracker.activeTab = 'discover')}
-		class={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
+		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'discover' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
-		<Sparkles class={`h-5 w-5 ${tracker.activeTab === 'discover' ? 'text-amber-600' : 'text-stone-400'}`} />
-		<span class="text-[10px]">Discover</span>
+		<Sparkles class={`h-4 w-4 ${tracker.activeTab === 'discover' ? 'text-amber-600' : 'text-stone-400'}`} />
+		<span class="text-[9px]">Discover</span>
 	</button>
 </div>
 

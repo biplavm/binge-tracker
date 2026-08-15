@@ -2,15 +2,20 @@
 	import type { TVMazeShow, TVMazeEpisode } from '$lib/services/tvmaze';
 	import { calculateBingePace, formatLongDate, getDaysUntil } from '$lib/services/tvmaze';
 	import { tracker } from '$lib/stores/tracker.svelte';
-	import { Check, Flame, Star, List, Calendar, Trash2, ChevronRight, Clock } from '@lucide/svelte';
+	import { db } from '$lib/db';
+	import { Check, Flame, Star, List, Calendar, Trash2, ChevronRight, Clock, BookmarkPlus, MessageSquare } from '@lucide/svelte';
 
 	let {
 		show,
 		watchedIds = [],
+		userRating = 0,
+		userReview = '',
 		onOpenPaceModal
 	}: {
 		show: TVMazeShow;
 		watchedIds: number[];
+		userRating?: number;
+		userReview?: string;
 		onOpenPaceModal?: (show: TVMazeShow) => void;
 	} = $props();
 
@@ -37,10 +42,30 @@
 			? calculateBingePace(episodes.length - watchedCount, nextAirdate, show.averageRuntime || 45)
 			: null
 	);
+
+	// Personal Rating & Review State
+	let currentRating = $state(0);
+	let showReviewInput = $state(false);
+	let reviewText = $state('');
+
+	$effect(() => {
+		currentRating = userRating;
+		reviewText = userReview || '';
+	});
+
+	async function setPersonalRating(rating: number) {
+		currentRating = rating;
+		await tracker.updateUserRating(show.id, rating, reviewText);
+	}
+
+	async function saveReview() {
+		await tracker.updateUserRating(show.id, currentRating, reviewText);
+		showReviewInput = false;
+	}
 </script>
 
 <div class="glass-card group relative overflow-hidden rounded-2xl flex flex-row bg-white border border-stone-200 shadow-sm">
-	<!-- Left: Poster Image (Compact horizontal side-by-side on mobile) -->
+	<!-- Left: Poster Image -->
 	<div class="relative w-28 sm:w-44 shrink-0 aspect-[2/3] bg-stone-100 overflow-hidden">
 		<img
 			src={show.image?.medium || show.image?.original || '/placeholder.png'}
@@ -50,9 +75,9 @@
 		/>
 		<div class="absolute inset-0 bg-gradient-to-t from-stone-900/30 via-transparent to-transparent"></div>
 
-		<!-- Rating Badge -->
+		<!-- TVMaze Rating Badge -->
 		{#if show.rating?.average}
-			<div class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-amber-50/95 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold text-amber-900 backdrop-blur-md border border-amber-300 shadow-sm">
+			<div class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-amber-50/95 px-2 py-0.5 text-[10px] font-bold text-amber-900 backdrop-blur-md border border-amber-300 shadow-sm">
 				<Star class="h-3 w-3 fill-amber-500 text-amber-500" />
 				<span>{show.rating.average}</span>
 			</div>
@@ -69,7 +94,7 @@
 	<!-- Right: Content Details -->
 	<div class="flex-1 p-3 sm:p-5 flex flex-col justify-between gap-2.5 min-w-0">
 		<div>
-			<!-- Title & Genres -->
+			<!-- Title & Action Triggers -->
 			<div class="flex items-start justify-between gap-1.5">
 				<div class="min-w-0 flex-1">
 					<h3 class="text-sm sm:text-lg font-extrabold text-stone-900 tracking-tight font-heading group-hover:text-amber-600 transition-colors truncate">
@@ -81,6 +106,16 @@
 				</div>
 
 				<div class="flex items-center gap-1 shrink-0">
+					<button
+						onclick={() => (showReviewInput = !showReviewInput)}
+						class={`rounded-xl p-1.5 sm:p-2 transition-colors ${
+							reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+						}`}
+						title="Personal Notes / Review"
+					>
+						<MessageSquare class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+					</button>
+
 					<button
 						onclick={() => tracker.openShowModal(show.id)}
 						class="rounded-xl bg-stone-100 p-1.5 sm:p-2 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
@@ -98,8 +133,63 @@
 				</div>
 			</div>
 
+			<!-- Personal Star Rating Selector -->
+			<div class="mt-2 flex items-center gap-1">
+				<span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider mr-1">My Score:</span>
+				<div class="flex items-center gap-0.5">
+					{#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as star}
+						<button
+							onclick={() => setPersonalRating(star)}
+							class="p-0.5 focus:outline-none transition-transform hover:scale-125"
+							title={`Rate ${star}/10`}
+						>
+							<Star
+								class={`h-3 w-3 ${
+									star <= currentRating
+										? 'fill-amber-500 text-amber-500'
+										: 'text-stone-300 hover:text-amber-400'
+								}`}
+							/>
+						</button>
+					{/each}
+				</div>
+				{#if currentRating > 0}
+					<span class="text-xs font-black text-amber-900 ml-1">{currentRating}/10</span>
+				{/if}
+			</div>
+
+			<!-- Inline Review / Personal Note Input -->
+			{#if showReviewInput}
+				<div class="mt-2 space-y-1.5 rounded-xl bg-stone-50 p-2 border border-stone-200">
+					<textarea
+						bind:value={reviewText}
+						placeholder="Write personal review notes or thoughts..."
+						rows="2"
+						class="w-full rounded-lg bg-white p-2 text-xs text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none"
+					></textarea>
+					<div class="flex justify-end gap-1.5">
+						<button
+							onclick={() => (showReviewInput = false)}
+							class="px-2 py-0.5 text-[10px] font-bold text-stone-500 hover:text-stone-800"
+						>
+							Cancel
+						</button>
+						<button
+							onclick={saveReview}
+							class="rounded-lg bg-amber-500 px-2.5 py-0.5 text-[10px] font-extrabold text-stone-950 hover:bg-amber-400"
+						>
+							Save Note
+						</button>
+					</div>
+				</div>
+			{:else if reviewText}
+				<p class="mt-1 text-[11px] italic text-amber-900 bg-amber-50/80 px-2 py-1 rounded-md border border-amber-200/60 line-clamp-2">
+					"{reviewText}"
+				</p>
+			{/if}
+
 			<!-- Progress Bar -->
-			<div class="mt-2.5 sm:mt-3.5">
+			<div class="mt-2.5 sm:mt-3">
 				<div class="flex items-center justify-between text-[10px] sm:text-xs text-stone-500 font-semibold mb-1">
 					<span>Progress</span>
 					<span class="text-stone-800 font-extrabold">{watchedCount} / {episodes.length} eps ({progressPercent}%)</span>
@@ -115,7 +205,7 @@
 			<!-- Next Up Episode Box -->
 			{#if nextEpisode && isNextEpisodeAired}
 				{@const daysAgo = getDaysUntil(nextEpisode.airdate)}
-				<div class="mt-2.5 sm:mt-3.5 rounded-xl bg-amber-500/5 p-2.5 sm:p-3.5 border border-amber-200/80">
+				<div class="mt-2.5 sm:mt-3 rounded-xl bg-amber-500/5 p-2.5 sm:p-3 border border-amber-200/80">
 					<div class="flex items-center justify-between text-[10px] sm:text-[11px] font-extrabold text-amber-900 tracking-wider uppercase mb-0.5">
 						<span>Next Up: S{nextEpisode.season} E{nextEpisode.number}</span>
 						{#if nextEpisode.airdate}
@@ -150,7 +240,7 @@
 				</div>
 			{:else if nextEpisode && !isNextEpisodeAired}
 				{@const daysLeft = getDaysUntil(nextEpisode.airdate)}
-				<div class="mt-2.5 sm:mt-3.5 rounded-xl bg-amber-50/80 p-2.5 sm:p-3.5 border border-amber-200">
+				<div class="mt-2.5 sm:mt-3 rounded-xl bg-amber-50/80 p-2.5 sm:p-3 border border-amber-200">
 					<div class="flex items-center justify-between gap-1.5 mb-1">
 						<span class="text-[11px] sm:text-xs font-bold text-amber-900 truncate">🎉 All caught up on aired episodes!</span>
 						{#if daysLeft !== null}
@@ -173,12 +263,12 @@
 					</p>
 				</div>
 			{:else if episodes.length > 0 && watchedCount >= episodes.length}
-				<div class="mt-2.5 sm:mt-3.5 rounded-xl bg-amber-50 p-2.5 text-center border border-amber-200">
+				<div class="mt-2.5 sm:mt-3 rounded-xl bg-amber-50 p-2.5 text-center border border-amber-200">
 					<p class="text-[11px] sm:text-xs font-bold text-amber-900">🎉 All caught up!</p>
 					<p class="text-[10px] sm:text-[11px] text-stone-500 mt-0.5">Waiting for next season release.</p>
 				</div>
 			{:else}
-				<div class="mt-2.5 sm:mt-3.5 rounded-xl bg-stone-100 p-2.5 text-center border border-stone-200">
+				<div class="mt-2.5 sm:mt-3 rounded-xl bg-stone-100 p-2.5 text-center border border-stone-200">
 					<p class="text-[11px] text-stone-500">Schedule pending update on TVMaze.</p>
 				</div>
 			{/if}
