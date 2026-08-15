@@ -105,15 +105,20 @@
 		<div class="flex items-center justify-between border-b border-stone-200 bg-stone-50/50 px-4 py-2 overflow-x-auto">
 			<div class="flex items-center gap-1.5">
 				{#each seasonsList as s}
+					{@const eps = seasonsMap().get(s) || []}
+					{@const isCompleted = eps.length > 0 && eps.every(ep => watchedIds.includes(ep.id))}
 					<button
 						onclick={() => (activeSeason = s)}
-						class={`rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all ${
+						class={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-extrabold transition-all ${
 							activeSeason === s
 								? 'bg-amber-500 text-stone-950 shadow-sm'
 								: 'bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-900'
 						}`}
 					>
-						Season {s}
+						<span>Season {s}</span>
+						{#if isCompleted}
+							<Check class={`h-3.5 w-3.5 stroke-[3] ${activeSeason === s ? 'text-stone-950' : 'text-emerald-600'}`} />
+						{/if}
 					</button>
 				{/each}
 			</div>
