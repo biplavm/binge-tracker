@@ -1,24 +1,40 @@
-import { createClient, type User } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 import type { TrackedShow, WatchedEpisode } from '$lib/db';
 import { db } from '$lib/db';
 
-// Fallback demo credentials if environment variables are not set
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhY2Nlc3NfdG9rZW4iOiJkZW1vLWtleSJ9';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let _supabase: SupabaseClient | null = null;
 
-// Auth helper functions
+export function getSupabase(): SupabaseClient | null {
+	if (typeof window === 'undefined') return null;
+	if (!_supabase) {
+		_supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+			auth: {
+				persistSession: true
+			}
+		});
+	}
+	return _supabase;
+}
+
 export async function signUpWithEmail(email: string, pass: string) {
-	return await supabase.auth.signUp({ email, password: pass });
+	const client = getSupabase();
+	if (!client) return { error: { message: 'Client unavailable' } };
+	return await client.auth.signUp({ email, password: pass });
 }
 
 export async function signInWithEmail(email: string, pass: string) {
-	return await supabase.auth.signInWithPassword({ email, password: pass });
+	const client = getSupabase();
+	if (!client) return { error: { message: 'Client unavailable' } };
+	return await client.auth.signInWithPassword({ email, password: pass });
 }
 
 export async function signInWithOAuth(provider: 'google' | 'github') {
-	return await supabase.auth.signInWithOAuth({
+	const client = getSupabase();
+	if (!client) return { error: { message: 'Client unavailable' } };
+	return await client.auth.signInWithOAuth({
 		provider,
 		options: {
 			redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined
@@ -27,11 +43,16 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
 }
 
 export async function signOutUser() {
-	return await supabase.auth.signOut();
+	const client = getSupabase();
+	if (!client) return;
+	return await client.auth.signOut();
 }
 
 // Bi-directional Cloud Sync with local Dexie IndexedDB
 export async function syncLocalDexieToSupabase(user: User) {
+	const client = getSupabase();
+	if (!client) return;
+
 	try {
 		const localShows = await db.shows.toArray();
 		const localEpisodes = await db.watchedEpisodes.toArray();
@@ -48,7 +69,7 @@ export async function syncLocalDexieToSupabase(user: User) {
 				network: s.network || null
 			}));
 
-			await supabase.from('user_shows').upsert(showsToUpsert, { onConflict: 'user_id,tvmaze_id' });
+			await client.from('user_shows').upsert(showsToUpsert, { onConflict: 'user_id,tvmaze_id' });
 		}
 
 		if (localEpisodes.length > 0) {
@@ -60,7 +81,7 @@ export async function syncLocalDexieToSupabase(user: User) {
 				episode_number: e.episodeNumber
 			}));
 
-			await supabase
+			await client
 				.from('user_watched_episodes')
 				.upsert(epToUpsert, { onConflict: 'user_id,tvmaze_show_id,tvmaze_episode_id' });
 		}
@@ -70,8 +91,11 @@ export async function syncLocalDexieToSupabase(user: User) {
 }
 
 export async function fetchSupabaseToDexie(user: User) {
+	const client = getSupabase();
+	if (!client) return;
+
 	try {
-		const { data: cloudShows } = await supabase
+		const { data: cloudShows } = await client
 			.from('user_shows')
 			.select('*')
 			.eq('user_id', user.id);
@@ -91,7 +115,7 @@ export async function fetchSupabaseToDexie(user: User) {
 			}
 		}
 
-		const { data: cloudEps } = await supabase
+		const { data: cloudEps } = await client
 			.from('user_watched_episodes')
 			.select('*')
 			.eq('user_id', user.id);

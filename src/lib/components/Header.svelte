@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tracker } from '$lib/stores/tracker.svelte';
-	import { supabase, signOutUser, syncLocalDexieToSupabase, fetchSupabaseToDexie } from '$lib/supabase';
+	import { getSupabase, signOutUser, syncLocalDexieToSupabase, fetchSupabaseToDexie } from '$lib/supabase';
 	import type { User } from '@supabase/supabase-js';
 	import AuthModal from '$lib/components/AuthModal.svelte';
 	import { Film, Search, Eye, EyeOff, Tv, Bookmark, BarChart3, Sparkles, Download, X, User as UserIcon, CloudCheck, LogOut } from '@lucide/svelte';
@@ -18,23 +18,26 @@
 			canInstallPWA = true;
 		});
 
-		// Listen to Supabase auth state changes
-		supabase.auth.getSession().then((res: any) => {
-			currentUser = res?.data?.session?.user ?? null;
-			if (currentUser) {
-				fetchSupabaseToDexie(currentUser);
-			}
-		});
+		const sb = getSupabase();
+		if (sb) {
+			// Listen to Supabase auth state changes
+			sb.auth.getSession().then((res: any) => {
+				currentUser = res?.data?.session?.user ?? null;
+				if (currentUser) {
+					fetchSupabaseToDexie(currentUser);
+				}
+			});
 
-		supabase.auth.onAuthStateChange(async (_event: string, session: any) => {
-			currentUser = session?.user ?? null;
-			if (currentUser) {
-				isSyncing = true;
-				await syncLocalDexieToSupabase(currentUser);
-				await fetchSupabaseToDexie(currentUser);
-				isSyncing = false;
-			}
-		});
+			sb.auth.onAuthStateChange(async (_event: string, session: any) => {
+				currentUser = session?.user ?? null;
+				if (currentUser) {
+					isSyncing = true;
+					await syncLocalDexieToSupabase(currentUser);
+					await fetchSupabaseToDexie(currentUser);
+					isSyncing = false;
+				}
+			});
+		}
 	}
 
 	async function installPWA() {
