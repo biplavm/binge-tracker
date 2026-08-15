@@ -61,112 +61,116 @@ export async function signOutUser() {
 // Upload local IndexedDB shows and watched episodes to Supabase Cloud
 export async function syncLocalDexieToSupabase(user: User) {
 	const client = getSupabase();
-	if (!client) return;
+	if (!client) throw new Error('Supabase client unavailable');
 
-	try {
-		const localShows = await db.shows.toArray();
-		const localEpisodes = await db.watchedEpisodes.toArray();
+	const localShows = await db.shows.toArray();
+	const localEpisodes = await db.watchedEpisodes.toArray();
 
-		if (localShows.length > 0) {
-			const showsToUpsert = localShows.map((s) => ({
-				user_id: user.id,
-				tvmaze_id: s.tvmazeId,
-				name: s.name,
-				poster: s.poster || null,
-				status: s.status,
-				rating: s.rating || null,
-				user_rating: s.userRating || null,
-				user_review: s.userReview || null,
-				genres: s.genres || [],
-				network: s.network || null
-			}));
+	if (localShows.length > 0) {
+		const showsToUpsert = localShows.map((s) => ({
+			user_id: user.id,
+			tvmaze_id: s.tvmazeId,
+			name: s.name,
+			poster: s.poster || null,
+			status: s.status,
+			rating: s.rating || null,
+			user_rating: s.userRating || null,
+			user_review: s.userReview || null,
+			genres: s.genres || [],
+			network: s.network || null
+		}));
 
-			const { error } = await client.from('user_shows').upsert(showsToUpsert, { onConflict: 'user_id,tvmaze_id' });
-			if (error) console.error('Supabase user_shows upsert error:', error.message);
+		const { error } = await client.from('user_shows').upsert(showsToUpsert, { onConflict: 'user_id,tvmaze_id' });
+		if (error) {
+			console.error('Supabase user_shows upsert error:', error.message);
+			throw new Error(`user_shows upsert failed: ${error.message}`);
 		}
+	}
 
-		if (localEpisodes.length > 0) {
-			const epToUpsert = localEpisodes.map((e) => ({
-				user_id: user.id,
-				tvmaze_show_id: e.tvmazeShowId,
-				tvmaze_episode_id: e.tvmazeEpisodeId,
-				season: e.season,
-				episode_number: e.episodeNumber
-			}));
+	if (localEpisodes.length > 0) {
+		const epToUpsert = localEpisodes.map((e) => ({
+			user_id: user.id,
+			tvmaze_show_id: e.tvmazeShowId,
+			tvmaze_episode_id: e.tvmazeEpisodeId,
+			season: e.season,
+			episode_number: e.episodeNumber
+		}));
 
-			const { error } = await client
-				.from('user_watched_episodes')
-				.upsert(epToUpsert, { onConflict: 'user_id,tvmaze_show_id,tvmaze_episode_id' });
-			if (error) console.error('Supabase user_watched_episodes upsert error:', error.message);
+		const { error } = await client
+			.from('user_watched_episodes')
+			.upsert(epToUpsert, { onConflict: 'user_id,tvmaze_show_id,tvmaze_episode_id' });
+		if (error) {
+			console.error('Supabase user_watched_episodes upsert error:', error.message);
+			throw new Error(`user_watched_episodes upsert failed: ${error.message}`);
 		}
-	} catch (err) {
-		console.warn('Supabase cloud sync error:', err);
 	}
 }
 
 // Download cloud shows and watched episodes from Supabase to local IndexedDB
 export async function fetchSupabaseToDexie(user: User) {
 	const client = getSupabase();
-	if (!client) return { showsCount: 0, episodesCount: 0 };
+	if (!client) throw new Error('Supabase client unavailable');
 
 	let showsCount = 0;
 	let episodesCount = 0;
 
-	try {
-		const { data: cloudShows, error: showErr } = await client
-			.from('user_shows')
-			.select('*')
-			.eq('user_id', user.id);
+	const { data: cloudShows, error: showErr } = await client
+		.from('user_shows')
+		.select('*')
+		.eq('user_id', user.id);
 
-		if (showErr) {
-			console.error('Error fetching cloud shows from Supabase:', showErr.message);
-		} else if (cloudShows && cloudShows.length > 0) {
-			showsCount = cloudShows.length;
-			for (const cs of cloudShows) {
-				const existing = await db.shows.get(cs.tvmaze_id);
-				await db.shows.put({
-					tvmazeId: cs.tvmaze_id,
-					name: cs.name,
-					poster: cs.poster,
-					status: cs.status,
-					rating: cs.rating,
-					userRating: cs.user_rating || existing?.userRating,
-					userReview: cs.user_review || existing?.userReview,
-					genres: cs.genres || [],
-					network: cs.network,
-					addedAt: existing?.addedAt || new Date(cs.added_at)
+	if (showErr) {
+		console.error('Error fetching cloud shows from Supabase:', showErr.message);
+		throw new Error(`Fetch user_shows failed: ${showErr.message}`);
+	}
+
+	if (cloudShows && cloudShows.length > 0) {
+		showsCount = cloudShows.length;
+		for (const cs of cloudShows) {
+			const existing = await db.shows.get(cs.tvmaze_id);
+			await db.shows.put({
+				tvmazeId: cs.tvmaze_id,
+				name: cs.name,
+				poster: cs.poster,
+				status: cs.status,
+				rating: cs.rating,
+				userRating: cs.user_rating || existing?.userRating,
+				userReview: cs.user_review || existing?.userReview,
+				genres: cs.genres || [],
+				network: cs.network,
+				addedAt: existing?.addedAt || new Date(cs.added_at)
+			});
+		}
+	}
+
+	const { data: cloudEps, error: epErr } = await client
+		.from('user_watched_episodes')
+		.select('*')
+		.eq('user_id', user.id);
+
+	if (epErr) {
+		console.error('Error fetching cloud episodes from Supabase:', epErr.message);
+		throw new Error(`Fetch user_watched_episodes failed: ${epErr.message}`);
+	}
+
+	if (cloudEps && cloudEps.length > 0) {
+		episodesCount = cloudEps.length;
+		for (const ce of cloudEps) {
+			const existing = await db.watchedEpisodes
+				.where('[tvmazeShowId+tvmazeEpisodeId]')
+				.equals([ce.tvmaze_show_id, ce.tvmaze_episode_id])
+				.first();
+
+			if (!existing) {
+				await db.watchedEpisodes.add({
+					tvmazeShowId: ce.tvmaze_show_id,
+					tvmazeEpisodeId: ce.tvmaze_episode_id,
+					season: ce.season,
+					episodeNumber: ce.episode_number,
+					watchedAt: new Date(ce.watched_at)
 				});
 			}
 		}
-
-		const { data: cloudEps, error: epErr } = await client
-			.from('user_watched_episodes')
-			.select('*')
-			.eq('user_id', user.id);
-
-		if (epErr) {
-			console.error('Error fetching cloud episodes from Supabase:', epErr.message);
-		} else if (cloudEps && cloudEps.length > 0) {
-			episodesCount = cloudEps.length;
-			for (const ce of cloudEps) {
-				const existing = await db.watchedEpisodes
-					.where('[tvmazeShowId+tvmazeEpisodeId]')
-					.equals([ce.tvmaze_show_id, ce.tvmaze_episode_id])
-					.first();
-
-				if (!existing) {
-					await db.watchedEpisodes.add({
-						tvmazeShowId: ce.tvmaze_show_id,
-						tvmazeEpisodeId: ce.tvmaze_episode_id,
-						season: ce.season,
-						episodeNumber: ce.episode_number,
-						watchedAt: new Date(ce.watched_at)
-					});
-				}
-			}
-		}
-	} catch (err) {
-		console.warn('Fetch Supabase data error:', err);
 	}
 
 	return { showsCount, episodesCount };
@@ -194,6 +198,10 @@ export async function performFullSync(user: User) {
 export async function triggerAutoSync() {
 	const user = await getCurrentUser();
 	if (user) {
-		await syncLocalDexieToSupabase(user);
+		try {
+			await syncLocalDexieToSupabase(user);
+		} catch (err) {
+			console.warn('Auto sync warning:', err);
+		}
 	}
 }
