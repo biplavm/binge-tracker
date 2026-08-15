@@ -137,35 +137,6 @@ export function calculateSimilarity(
 	return Math.round(score);
 }
 
-// 5. Portfolio Differentiator: Binge Pace Calculator
-export interface BingePaceResult {
-	daysRemaining: number;
-	episodesPerDay: number;
-	minutesPerDay: number;
-	formattedPlan: string;
-}
-
-export function calculateBingePace(
-	unwatchedEpisodesCount: number,
-	targetDateString: string,
-	avgRuntimeMinutes: number = 45
-): BingePaceResult | null {
-	if (unwatchedEpisodesCount <= 0 || !targetDateString) return null;
-	const targetDate = new Date(targetDateString);
-	const today = new Date();
-	const diffTime = targetDate.getTime() - today.getTime();
-	const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-
-	const episodesPerDay = parseFloat((unwatchedEpisodesCount / diffDays).toFixed(1));
-	const minutesPerDay = Math.round((unwatchedEpisodesCount * avgRuntimeMinutes) / diffDays);
-
-	return {
-		daysRemaining: diffDays,
-		episodesPerDay,
-		minutesPerDay,
-		formattedPlan: `Watch ${episodesPerDay} eps/day (~${minutesPerDay} mins/day) to catch up by ${formatLongDate(targetDateString)}`
-	};
-}
 
 // 6. Portfolio Differentiator: Lifetime Watch Stats ("TV Wrapped")
 export interface LifetimeStats {

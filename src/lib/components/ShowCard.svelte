@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TVMazeShow, TVMazeEpisode } from '$lib/services/tvmaze';
 	import type { TrackedShow } from '$lib/db';
-	import { calculateBingePace, formatLongDate, getDaysUntil } from '$lib/services/tvmaze';
+	import { formatLongDate, getDaysUntil } from '$lib/services/tvmaze';
 	import { tracker } from '$lib/stores/tracker.svelte';
 	import { getSupabase } from '$lib/supabase';
 	import { db } from '$lib/db';
@@ -12,15 +12,13 @@
 		trackedShow = null,
 		watchedIds = [],
 		userRating = 0,
-		userReview = '',
-		onOpenPaceModal
+		userReview = ''
 	}: {
 		show?: TVMazeShow | null;
 		trackedShow?: TrackedShow | null;
 		watchedIds: number[];
 		userRating?: number;
 		userReview?: string;
-		onOpenPaceModal?: (show: TVMazeShow) => void;
 	} = $props();
 
 	// Check if user is signed in to render cloud vs local storage badge
@@ -64,11 +62,22 @@
 
 	// Next scheduled upcoming release date from embedded payload
 	const nextAirdate = $derived(show?._embedded?.nextepisode?.airdate);
-	const bingePlan = $derived(
-		nextAirdate && episodes.length > watchedCount && show
-			? calculateBingePace(episodes.length - watchedCount, nextAirdate, show.averageRuntime || 45)
-			: null
-	);
+
+	// Compute seasons and watched status
+	const seasonStats = $derived.by(() => {
+		const map = new Map<number, { total: number; watched: number }>();
+		for (const ep of episodes) {
+			const s = map.get(ep.season) || { total: 0, watched: 0 };
+			s.total += 1;
+			if (watchedIds.includes(ep.id)) {
+				s.watched += 1;
+			}
+			map.set(ep.season, s);
+		}
+		return Array.from(map.entries())
+			.map(([season, stats]) => ({ season, ...stats }))
+			.sort((a, b) => a.season - b.season);
+	});
 
 	// Personal Rating & Review State
 	let currentRating = $state(0);
@@ -322,21 +331,17 @@
 			{/if}
 		</div>
 
-		<!-- Bottom Binge Pace Banner -->
-		{#if bingePlan}
-			<div class="flex items-center justify-between rounded-xl bg-amber-100/70 px-2.5 py-1.5 border border-amber-300/80 text-[11px] text-amber-950 font-semibold">
-				<div class="flex items-center gap-1.5 truncate">
-					<Flame class="h-3.5 w-3.5 text-amber-600 shrink-0" />
-					<span class="font-bold text-[10px] sm:text-[11px] truncate">{bingePlan.formattedPlan}</span>
-				</div>
-				{#if onOpenPaceModal && show}
-					<button
-						onclick={() => show && onOpenPaceModal(show)}
-						class="text-[10px] sm:text-[11px] font-extrabold text-amber-900 underline hover:text-amber-700 ml-1.5 shrink-0"
-					>
-						Pace
-					</button>
-				{/if}
+		<!-- Bottom Season Checklist -->
+		{#if seasonStats.length > 0}
+			<div class="mt-1 flex flex-wrap gap-1">
+				{#each seasonStats as s}
+					<div class={`flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold border ${s.watched >= s.total && s.total > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-50 text-stone-500 border-stone-200'}`}>
+						<span>S{s.season}</span>
+						{#if s.watched >= s.total && s.total > 0}
+							<Check class="h-2.5 w-2.5" />
+						{/if}
+					</div>
+				{/each}
 			</div>
 		{/if}
 	</div>

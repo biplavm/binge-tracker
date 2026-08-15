@@ -3,7 +3,6 @@
 	import Header from '$lib/components/Header.svelte';
 	import PWAOfflineNotice from '$lib/components/PWAOfflineNotice.svelte';
 	import EpisodeListModal from '$lib/components/EpisodeListModal.svelte';
-	import BingePaceModal from '$lib/components/BingePaceModal.svelte';
 	import { tracker } from '$lib/stores/tracker.svelte';
 	import { searchShows, getShowDetails, type TVMazeShow } from '$lib/services/tvmaze';
 	import { db, type TrackedShow, type WatchedEpisode } from '$lib/db';
@@ -48,8 +47,6 @@
 		}
 	});
 
-	// Binge Pace Modal state
-	let paceModalShow = $state<TVMazeShow | null>(null);
 </script>
 
 <div class="min-h-screen flex flex-col bg-[#fcfbf7] text-stone-900 selection:bg-amber-400 selection:text-stone-950">
@@ -90,15 +87,4 @@
 		{/if}
 	{/if}
 
-	<!-- Global Binge Pace Modal -->
-	{#if paceModalShow}
-		{@const paceWatchedIds = watchedEpisodesList
-			.filter((ep) => ep.tvmazeShowId === paceModalShow?.id)
-			.map((ep) => ep.tvmazeEpisodeId)}
-		<BingePaceModal
-			show={paceModalShow}
-			watchedIds={paceWatchedIds}
-			onClose={() => (paceModalShow = null)}
-		/>
-	{/if}
 </div>

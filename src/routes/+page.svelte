@@ -7,7 +7,6 @@
 	import YetToWatchCard from '$lib/components/YetToWatchCard.svelte';
 	import StatsDashboard from '$lib/components/StatsDashboard.svelte';
 	import SimilarShows from '$lib/components/SimilarShows.svelte';
-	import BingePaceModal from '$lib/components/BingePaceModal.svelte';
 	import FilterSortBar from '$lib/components/FilterSortBar.svelte';
 	import CustomListsView from '$lib/components/CustomListsView.svelte';
 	import { liveQuery } from 'dexie';
@@ -120,9 +119,6 @@
 	const watchingShows = $derived(processShows(trackedShowsList.filter((s) => s.status === 'watching')));
 	const backlogShows = $derived(processShows(trackedShowsList.filter((s) => s.status === 'yet_to_watch')));
 
-	// Binge Pace Modal Show target
-	let paceModalShow = $state<TVMazeShow | null>(null);
-
 	async function quickAddShow(show: TVMazeShow, status: 'watching' | 'yet_to_watch') {
 		const full = await getShowDetails(show.id);
 		await db.shows.put({
@@ -189,9 +185,7 @@
 							show={fullShow}
 							trackedShow={tracked}
 							watchedIds={showWatchedIds}
-							userRating={tracked.userRating}
 							userReview={tracked.userReview}
-							onOpenPaceModal={(s) => (paceModalShow = s)}
 						/>
 					{/each}
 				</div>
@@ -421,15 +415,4 @@
 		</div>
 	{/if}
 
-	<!-- Binge Pace Modal -->
-	{#if paceModalShow}
-		{@const paceWatchedIds = watchedEpisodesList
-			.filter((ep) => ep.tvmazeShowId === paceModalShow?.id)
-			.map((ep) => ep.tvmazeEpisodeId)}
-		<BingePaceModal
-			show={paceModalShow}
-			watchedIds={paceWatchedIds}
-			onClose={() => (paceModalShow = null)}
-		/>
-	{/if}
 </div>
