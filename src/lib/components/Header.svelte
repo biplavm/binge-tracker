@@ -133,15 +133,15 @@
 		</div>
 
 		<!-- Search Bar with Year Filter -->
-		<div class="flex items-center gap-1.5 sm:gap-2 w-full">
-			<div class="relative flex-1 min-w-0">
-				<Search class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400" />
+		<div class="flex items-center w-full rounded-2xl bg-white border border-stone-200 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 shadow-sm transition-all overflow-hidden p-1">
+			<div class="relative flex-1 min-w-0 flex items-center">
+				<Search class="absolute left-3 h-4 w-4 text-stone-400" />
 				<input
 					type="text"
-					placeholder="Search shows (Severance, Succession)..."
+					placeholder="Search shows (Severance)..."
 					bind:value={tracker.searchQuery}
 					onkeydown={(e) => e.key === 'Enter' && tracker.performSearch()}
-					class="w-full rounded-xl bg-white pl-8 pr-7 py-1.5 sm:py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-sm transition-all"
+					class="w-full bg-transparent pl-9 pr-7 py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
 				/>
 				{#if tracker.searchQuery}
 					<button
@@ -149,12 +149,14 @@
 							tracker.searchQuery = '';
 							tracker.searchResults = [];
 						}}
-						class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+						class="absolute right-2 text-stone-400 hover:text-stone-700"
 					>
-						<X class="h-3.5 w-3.5" />
+						<X class="h-4 w-4" />
 					</button>
 				{/if}
 			</div>
+
+			<div class="w-[1px] h-6 bg-stone-200 mx-1 shrink-0"></div>
 
 			<input
 				type="text"
@@ -162,18 +164,18 @@
 				maxlength="4"
 				bind:value={tracker.searchYear}
 				onkeydown={(e) => e.key === 'Enter' && tracker.performSearch()}
-				class="w-12 sm:w-16 shrink-0 rounded-xl bg-white px-1.5 sm:px-2.5 py-1.5 sm:py-2 text-center text-xs sm:text-sm text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-sm transition-all"
+				class="w-16 shrink-0 bg-transparent px-2 py-2 text-center text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
 			/>
 
 			<button
 				onclick={() => tracker.performSearch()}
 				disabled={tracker.isSearching}
-				class="flex h-8 sm:h-9 shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-3 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-95 disabled:opacity-50 transition-all"
+				class="flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 text-xs font-extrabold text-stone-950 hover:from-amber-400 hover:to-yellow-400 active:scale-95 disabled:opacity-50 transition-all ml-1"
 			>
 				{#if tracker.isSearching}
-					<div class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-stone-950 border-t-transparent"></div>
+					<div class="h-4 w-4 animate-spin rounded-full border-2 border-stone-950 border-t-transparent"></div>
 				{:else}
-					<Search class="h-3.5 w-3.5 text-stone-950" />
+					<Search class="h-4 w-4 text-stone-950" />
 					<span class="hidden sm:inline">Search</span>
 				{/if}
 			</button>
@@ -245,10 +247,10 @@
 </header>
 
 <!-- Mobile Bottom Fixed Navigation Bar -->
-<div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 py-1.5 shadow-lg flex items-center justify-around">
+<div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] flex items-center justify-around">
 	<button
 		onclick={() => (tracker.activeTab = 'watching')}
-		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
+		class={`flex flex-col items-center gap-1 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'watching' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>

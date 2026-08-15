@@ -104,118 +104,119 @@
 	}
 </script>
 
-<div class="glass-card group relative overflow-hidden rounded-2xl flex flex-col bg-white border border-stone-200 shadow-sm">
-	<!-- Top: Poster Image -->
-	<div class="relative w-full aspect-[16/9] bg-stone-100 overflow-hidden">
+<div class="glass-card group relative overflow-hidden rounded-2xl flex flex-col bg-white border border-stone-200 shadow-sm p-4 sm:p-5 gap-4 sm:gap-5">
+	<!-- Top: Poster & Details -->
+	<div class="flex flex-row gap-3 sm:gap-5 items-stretch">
+		<!-- Left: Poster Image -->
+	<div class="relative w-28 sm:w-32 shrink-0 aspect-[2/3] rounded-xl overflow-hidden bg-stone-100 shadow-sm self-start">
 		<img
 			src={showPoster}
 			alt={showName}
 			loading="lazy"
 			class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 		/>
-		<div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent"></div>
+		<div class="absolute inset-0 bg-gradient-to-t from-stone-900/30 via-transparent to-transparent"></div>
 
 		<!-- TVMaze Rating Badge -->
 		{#if showRatingAverage}
-			<div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-black text-stone-950 shadow-sm">
-				<Star class="h-3 w-3 fill-stone-950 text-stone-950" />
+			<div class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-amber-50/95 px-2 py-0.5 text-[10px] font-bold text-amber-900 backdrop-blur-md border border-amber-300 shadow-sm">
+				<Star class="h-3 w-3 fill-amber-500 text-amber-500" />
 				<span>{showRatingAverage}</span>
 			</div>
 		{/if}
 
 		<!-- Storage Location Indicator Badge -->
-		<div class="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold text-stone-800 backdrop-blur-md border border-stone-200 shadow-sm">
+		<div class="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-stone-950/70 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md">
 			{#if isUserSignedIn}
-				<CloudCheck class="h-3 w-3 text-emerald-600" />
-				<span class="hidden sm:inline">Cloud Synced</span>
+				<CloudCheck class="h-3 w-3 text-amber-300" />
+				<span class="hidden sm:inline">Cloud</span>
 			{:else}
-				<HardDrive class="h-3 w-3 text-stone-500" />
-				<span class="hidden sm:inline">Local Only</span>
+				<HardDrive class="h-3 w-3 text-stone-300" />
+				<span class="hidden sm:inline">Local</span>
 			{/if}
 		</div>
 
-		<!-- Bottom Overlay Details -->
-		<div class="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
-			<div>
-				<h3 class="text-base font-extrabold text-white font-heading group-hover:text-amber-300 transition-colors drop-shadow-sm truncate max-w-[200px] sm:max-w-[300px]">
-					{showName}
-				</h3>
-				<p class="text-xs text-stone-200 font-medium drop-shadow-sm truncate">
-					{showPremieredYear || 'TBA'} • {showGenres.slice(0, 2).join(', ')}
-				</p>
+		<!-- Network Badge -->
+		{#if showNetworkName}
+			<div class="absolute bottom-2 left-2 hidden sm:block rounded-md bg-stone-900/80 px-2 py-0.5 text-[10px] font-bold text-amber-200 backdrop-blur-md">
+				{showNetworkName}
 			</div>
-
-			<!-- Network Badge -->
-			{#if showNetworkName}
-				<div class="rounded-md bg-stone-900/80 px-2 py-0.5 text-[10px] font-bold text-amber-200 backdrop-blur-md whitespace-nowrap">
-					{showNetworkName}
-				</div>
-			{/if}
-		</div>
+		{/if}
 	</div>
 
-	<!-- Bottom: Content Details -->
-	<div class="flex-1 p-3 sm:p-5 flex flex-col justify-between gap-3 min-w-0 bg-[#fcfbf7]">
-		<!-- Action Triggers -->
-		<div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-3">
-			<!-- Personal Star Rating Selector -->
-			<div class="flex items-center gap-2">
-				<div class="flex items-center gap-1">
-					{#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as star}
-						<button
-							onclick={() => setPersonalRating(star)}
-							class="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center focus:outline-none transition-transform hover:scale-125"
-							title={`Rate ${star}/10`}
-						>
-							<Star
-								class={`h-4 w-4 sm:h-5 sm:w-5 ${
-									star <= currentRating
-										? 'fill-amber-500 text-amber-500'
-										: 'text-stone-300 hover:text-amber-400'
-								}`}
-							/>
-						</button>
-					{/each}
+	<!-- Right: Content Details -->
+	<div class="flex-1 flex flex-col justify-between gap-2 min-w-0">
+		<div class="flex flex-col gap-2">
+			<!-- Title & Action Triggers -->
+			<div class="flex items-start justify-between gap-1.5">
+				<div class="min-w-0 flex-1">
+					<h3 class="text-sm sm:text-lg font-extrabold text-stone-900 tracking-tight font-heading group-hover:text-amber-600 transition-colors truncate">
+						{showName}
+					</h3>
+					<p class="text-[11px] sm:text-xs text-stone-500 font-medium truncate">
+						{showPremieredYear || 'TBA'} • {showGenres.slice(0, 2).join(', ')}
+					</p>
+				</div>
+
+				<div class="flex items-center gap-1 shrink-0">
+					<button
+						onclick={() => (showReviewInput = !showReviewInput)}
+						class={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+							reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+						}`}
+						title="Personal Notes / Review"
+					>
+						<MessageSquare class="h-4 w-4" />
+					</button>
+
+					<button
+						onclick={() => showId && tracker.openShowModal(showId)}
+						class="flex h-9 w-9 items-center justify-center rounded-lg bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
+						title="Full Episode Breakdown"
+					>
+						<List class="h-4 w-4" />
+					</button>
+					<button
+						onclick={() => {
+							if (showId && confirm(`Are you sure you want to remove "${showName}" from your tracked shows?`)) {
+								tracker.removeShow(showId);
+							}
+						}}
+						class="flex h-9 w-9 items-center justify-center rounded-lg bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+						title="Remove from Library"
+					>
+						<Trash2 class="h-4 w-4" />
+					</button>
 				</div>
 			</div>
-
-			<div class="flex items-center gap-1 shrink-0 ml-auto">
-				<button
-					onclick={() => (showReviewInput = !showReviewInput)}
-					class={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
-						reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
-					}`}
-					title="Personal Notes / Review"
-				>
-					<MessageSquare class="h-4 w-4 sm:h-5 sm:w-5" />
-				</button>
-
-				<button
-					onclick={() => showId && tracker.openShowModal(showId)}
-					class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
-					title="Full Episode Breakdown"
-				>
-					<List class="h-4 w-4 sm:h-5 sm:w-5" />
-				</button>
-				<button
-					onclick={() => {
-						if (showId && confirm(`Are you sure you want to remove "${showName}" from your tracked shows?`)) {
-							tracker.removeShow(showId);
-						}
-					}}
-					class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
-					title="Remove from Library"
-				>
-					<Trash2 class="h-4 w-4 sm:h-5 sm:w-5" />
-				</button>
-			</div>
-		</div>
-
-
 
 			<!-- Inline Review / Personal Note Input -->
 			{#if showReviewInput}
-				<div class="mt-2 space-y-1.5 rounded-xl bg-stone-50 p-2 border border-stone-200">
+				<div class="mt-2 space-y-3 rounded-xl bg-stone-50 p-3 border border-stone-200">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-xs font-bold text-stone-500 uppercase tracking-wider">My Score</span>
+						<div class="flex flex-wrap items-center gap-1">
+							{#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as star}
+								<button
+									onclick={() => setPersonalRating(star)}
+									class="flex h-6 w-6 items-center justify-center focus:outline-none transition-transform hover:scale-125"
+									title={`Rate ${star}/10`}
+								>
+									<Star
+										class={`h-4 w-4 sm:h-5 sm:w-5 ${
+											star <= currentRating
+												? 'fill-amber-500 text-amber-500'
+												: 'text-stone-300 hover:text-amber-400'
+										}`}
+									/>
+								</button>
+							{/each}
+							{#if currentRating > 0}
+								<span class="text-xs font-black text-amber-900 ml-2">{currentRating}/10</span>
+							{/if}
+						</div>
+					</div>
+
 					<textarea
 						bind:value={reviewText}
 						placeholder="Write personal review notes or thoughts..."
@@ -225,48 +226,38 @@
 					<div class="flex justify-end gap-2">
 						<button
 							onclick={() => (showReviewInput = false)}
-							class="min-h-10 min-w-[80px] px-3 font-bold text-stone-500 hover:text-stone-800 text-sm"
+							class="min-h-12 min-w-[80px] px-3 font-bold text-stone-500 hover:text-stone-800 text-sm transition-colors"
 						>
 							Cancel
 						</button>
 						<button
 							onclick={saveReview}
-							class="min-h-10 min-w-[80px] rounded-lg bg-amber-500 px-4 font-extrabold text-stone-950 hover:bg-amber-400 text-sm"
+							class="min-h-12 min-w-[80px] rounded-lg bg-amber-500 px-4 font-extrabold text-stone-950 hover:bg-amber-400 text-sm transition-colors"
 						>
 							Save Note
 						</button>
 					</div>
 				</div>
-			{:else if reviewText}
-				<p class="mt-1 text-[11px] italic text-amber-900 bg-amber-50/80 px-2 py-1 rounded-md border border-amber-200/60 line-clamp-2">
-					"{reviewText}"
-				</p>
+			{:else if reviewText || currentRating > 0}
+				<div class="mt-2 flex flex-col gap-1.5 rounded-xl bg-amber-50/80 p-3 border border-amber-200/60">
+					{#if currentRating > 0}
+						<div class="flex items-center gap-1">
+							<Star class="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+							<span class="text-[11px] font-black text-amber-900 tracking-wide uppercase">My Score: {currentRating}/10</span>
+						</div>
+					{/if}
+					{#if reviewText}
+						<p class="text-[11px] sm:text-xs italic text-stone-700 leading-relaxed line-clamp-3">
+							"{reviewText}"
+						</p>
+					{/if}
+				</div>
 			{/if}
-
-			<!-- Progress Bar -->
-			<div class="mt-2.5 sm:mt-3">
-				<div class="flex items-center justify-between text-[10px] sm:text-xs text-stone-500 font-semibold mb-1">
-					<span>Progress</span>
-					<span class="text-stone-800 font-extrabold">
-						{#if episodes.length > 0}
-							{watchedCount} / {episodes.length} eps ({progressPercent}%)
-						{:else}
-							Updating episode schedule...
-						{/if}
-					</span>
-				</div>
-				<div class="h-2 sm:h-2.5 w-full overflow-hidden rounded-full bg-stone-100 border border-stone-200/60">
-					<div
-						class="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 transition-all duration-500"
-						style={`width: ${progressPercent}%`}
-					></div>
-				</div>
-			</div>
 
 			<!-- Next Up Episode Box -->
 			{#if nextEpisode && isNextEpisodeAired}
 				{@const daysAgo = getDaysUntil(nextEpisode.airdate)}
-				<div class="mt-2.5 sm:mt-3 rounded-xl bg-amber-500/5 p-2.5 sm:p-3 border border-amber-200/80">
+				<div class="mt-1 rounded-xl bg-amber-500/5 p-2.5 sm:p-3 border border-amber-200/80">
 					<div class="flex items-center justify-between text-[10px] sm:text-[11px] font-extrabold text-amber-900 tracking-wider uppercase mb-0.5">
 						<span>Next Up: S{nextEpisode.season} E{nextEpisode.number}</span>
 						{#if nextEpisode.airdate}
@@ -281,38 +272,13 @@
 						{/if}
 					</div>
 
-					<h4 class={`text-xs sm:text-sm font-bold text-stone-900 truncate ${tracker.antiSpoilerMode ? 'spoiler-blur' : ''}`}>
+					<h4 class="text-xs sm:text-sm font-bold text-stone-900 truncate">
 						{nextEpisode.name}
 					</h4>
-
-					{#if nextEpisode.summary}
-						<p class={`mt-0.5 text-[11px] sm:text-xs text-stone-600 line-clamp-2 leading-relaxed ${tracker.antiSpoilerMode ? 'spoiler-blur' : ''}`}>
-							{nextEpisode.summary.replace(/<[^>]*>?/gm, '')}
-						</p>
-					{/if}
-
-					<div class="mt-2 flex items-center gap-2">
-						<button
-							onclick={() => showId && tracker.markEpisodeWatched(showId, nextEpisode)}
-							class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 text-xs sm:text-sm font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
-						>
-							<Check class="h-4 w-4 sm:h-5 sm:w-5 text-stone-950" />
-							<span>Mark S{nextEpisode.season}E{nextEpisode.number} Watched</span>
-						</button>
-						{#if watchedCount > 0}
-							<button
-								onclick={() => showId && tracker.unmarkLastEpisode(showId)}
-								class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-800 transition-colors shrink-0"
-								title="Undo last watched episode"
-							>
-								<Undo2 class="h-4 w-4 sm:h-5 sm:w-5" />
-							</button>
-						{/if}
-					</div>
 				</div>
 			{:else if nextEpisode && !isNextEpisodeAired}
 				{@const daysLeft = getDaysUntil(nextEpisode.airdate)}
-				<div class="mt-2.5 sm:mt-3 rounded-xl bg-amber-50/80 p-2.5 sm:p-3 border border-amber-200">
+				<div class="mt-1 rounded-xl bg-amber-50/80 p-2.5 sm:p-3 border border-amber-200">
 					<div class="flex items-center justify-between gap-1.5 mb-1">
 						<span class="text-[11px] sm:text-xs font-bold text-amber-900 truncate">🎉 All caught up on aired episodes!</span>
 						{#if daysLeft !== null}
@@ -335,29 +301,75 @@
 					</p>
 				</div>
 			{:else if episodes.length > 0 && watchedCount >= episodes.length}
-				<div class="mt-2.5 sm:mt-3 rounded-xl bg-amber-50 p-2.5 text-center border border-amber-200">
+				<div class="mt-1 rounded-xl bg-amber-50 p-2.5 sm:p-3 text-center border border-amber-200">
 					<p class="text-[11px] sm:text-xs font-bold text-amber-900">🎉 All caught up!</p>
 					<p class="text-[10px] sm:text-[11px] text-stone-500 mt-0.5">Waiting for next season release.</p>
 				</div>
 			{:else}
-				<div class="mt-2.5 sm:mt-3 rounded-xl bg-stone-100 p-2.5 text-center border border-stone-200">
+				<div class="mt-1 rounded-xl bg-stone-100 p-2.5 sm:p-3 text-center border border-stone-200">
 					<p class="text-[11px] text-stone-500">Updating episode schedule...</p>
 				</div>
 			{/if}
 
-
-		<!-- Bottom Season Checklist -->
-		{#if seasonStats.length > 0}
-			<div class="mt-1 flex flex-wrap gap-1">
-				{#each seasonStats as s}
-					<div class={`flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold border ${s.watched >= s.total && s.total > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-50 text-stone-500 border-stone-200'}`}>
-						<span>S{s.season}</span>
-						{#if s.watched >= s.total && s.total > 0}
-							<Check class="h-2.5 w-2.5" />
-						{/if}
-					</div>
-				{/each}
-			</div>
-		{/if}
+			<!-- Seasons Checklist Underneath Next Up -->
+			{#if seasonStats.length > 0}
+				<div class="flex flex-wrap gap-1 mt-1">
+					{#each seasonStats as s}
+						<div class={`flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold border ${s.watched >= s.total && s.total > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-50 text-stone-500 border-stone-200'}`}>
+							<span>S{s.season}</span>
+							{#if s.watched >= s.total && s.total > 0}
+								<Check class="h-2.5 w-2.5" />
+							{/if}
+						</div>
+					{/each}
+				</div>
+			{/if}
+		</div>
 	</div>
+</div>
+
+<!-- Bottom Section: Progress, Checklists, and CTA -->
+<div class="flex flex-col gap-3 pt-3 sm:pt-4 border-t border-stone-100">
+	<!-- Progress Bar -->
+	<div>
+		<div class="flex items-center justify-between text-[10px] sm:text-xs text-stone-500 font-semibold mb-1">
+			<span>Progress</span>
+			<span class="text-stone-800 font-extrabold">
+				{#if episodes.length > 0}
+					{watchedCount} / {episodes.length} eps ({progressPercent}%)
+				{:else}
+					Updating episode schedule...
+				{/if}
+			</span>
+		</div>
+		<div class="h-2 sm:h-2.5 w-full overflow-hidden rounded-full bg-stone-100 border border-stone-200/60">
+			<div
+				class="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 transition-all duration-500"
+				style={`width: ${progressPercent}%`}
+			></div>
+		</div>
+	</div>
+
+	<!-- Bottom: Call to Action -->
+	{#if nextEpisode && isNextEpisodeAired}
+		<div class="flex items-center gap-2">
+			<button
+				onclick={() => showId && tracker.markEpisodeWatched(showId, nextEpisode)}
+				class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 text-xs sm:text-sm font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
+			>
+				<Check class="h-4 w-4 sm:h-5 sm:w-5 text-stone-950" />
+				<span>Mark S{nextEpisode.season}E{nextEpisode.number} Watched</span>
+			</button>
+			{#if watchedCount > 0}
+				<button
+					onclick={() => showId && tracker.unmarkLastEpisode(showId)}
+					class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-800 transition-colors shrink-0"
+					title="Undo last watched episode"
+				>
+					<Undo2 class="h-4 w-4 sm:h-5 sm:w-5" />
+				</button>
+			{/if}
+		</div>
+	{/if}
+</div>
 </div>

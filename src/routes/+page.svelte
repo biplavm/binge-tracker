@@ -191,20 +191,23 @@
 				</div>
 			{:else}
 				<!-- Empty State for Watching Board -->
-				<div class="glass-panel rounded-3xl p-6 sm:p-12 text-center bg-white border border-stone-200 max-w-xl mx-auto my-4 sm:my-8 shadow-sm">
-					<div class="mx-auto flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 border border-amber-300 mb-3 sm:mb-4">
-						<Tv class="h-7 w-7 sm:h-8 sm:w-8" />
+				<div class="glass-panel rounded-2xl p-6 sm:p-10 text-center bg-white/40 border border-stone-200 max-w-xl mx-auto my-6 sm:my-10 shadow-sm relative overflow-hidden">
+					<div class="absolute -top-12 -right-12 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl"></div>
+					<div class="absolute -bottom-12 -left-12 w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl"></div>
+					
+					<div class="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-amber-100/80 text-amber-800 border border-amber-300/50 mb-5 sm:mb-6 shadow-inner">
+						<Tv class="h-8 w-8 sm:h-10 sm:w-10" />
 					</div>
-					<h3 class="text-base sm:text-lg font-extrabold text-stone-900 font-heading">No shows match filters</h3>
-					<p class="text-xs text-stone-500 mt-1 leading-relaxed font-medium">
-						Search for your favorite series or adjust your filters to view tracked shows!
+					<h3 class="text-lg sm:text-xl font-black text-stone-900 font-heading">No active shows found</h3>
+					<p class="text-xs sm:text-sm text-stone-500 mt-2 leading-relaxed font-medium max-w-xs mx-auto">
+						Your currently watching board is empty. Find a series you're watching right now to track progress!
 					</p>
 					<button
 						onclick={() => (tracker.activeTab = 'discover')}
-						class="mt-4 sm:mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-black text-stone-950 shadow-md hover:from-amber-400 hover:to-yellow-400 transition-all"
+						class="mt-6 sm:mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-6 text-sm font-black text-stone-950 shadow-md hover:from-amber-400 hover:to-yellow-400 active:scale-95 transition-all"
 					>
 						<Sparkles class="h-4 w-4 text-stone-950" />
-						<span>Explore Discover Directory</span>
+						<span>Explore Directory</span>
 					</button>
 				</div>
 			{/if}
@@ -233,26 +236,29 @@
 			{/if}
 
 			{#if backlogShows.length > 0}
-				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
 					{#each backlogShows as tracked}
 						{@const fullShow = showDetailsCache[tracked.tvmazeId]}
 						{#if fullShow}
 							<YetToWatchCard show={fullShow} />
 						{:else}
-							<div class="glass-card rounded-2xl p-4 bg-white border border-stone-200 animate-pulse aspect-[16/9] w-full"></div>
+							<div class="glass-card rounded-2xl p-4 bg-white border border-stone-200 animate-pulse w-full h-32"></div>
 						{/if}
 					{/each}
 				</div>
 			{:else}
-				<div class="glass-panel rounded-3xl p-6 sm:p-12 text-center bg-white border border-stone-200 max-w-xl mx-auto my-4 sm:my-8 shadow-sm">
-					<div class="mx-auto flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 border border-amber-300 mb-3 sm:mb-4">
-						<Bookmark class="h-7 w-7 sm:h-8 sm:w-8" />
+				<div class="glass-panel rounded-2xl p-6 sm:p-10 text-center bg-white/40 border border-stone-200 max-w-xl mx-auto my-6 sm:my-10 shadow-sm relative overflow-hidden">
+					<div class="absolute -top-12 -left-12 w-32 h-32 bg-stone-400/10 rounded-full blur-2xl"></div>
+					<div class="absolute -bottom-12 -right-12 w-32 h-32 bg-stone-400/10 rounded-full blur-2xl"></div>
+
+					<div class="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-stone-100 text-stone-600 border border-stone-300/50 mb-5 sm:mb-6 shadow-inner">
+						<Bookmark class="h-8 w-8 sm:h-10 sm:w-10" />
 					</div>
-					<h3 class="text-base sm:text-lg font-extrabold text-stone-900 font-heading">Queue is currently empty</h3>
-					<p class="text-xs text-stone-500 mt-1 font-medium">Add shows you intend to watch later to organize your watchlist.</p>
+					<h3 class="text-lg sm:text-xl font-black text-stone-900 font-heading">Queue is currently empty</h3>
+					<p class="text-xs sm:text-sm text-stone-500 mt-2 font-medium max-w-xs mx-auto">Build your backlog by adding shows you intend to watch later.</p>
 					<button
 						onclick={() => (tracker.activeTab = 'discover')}
-						class="mt-4 sm:mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-black text-stone-950 shadow-md hover:from-amber-400 hover:to-yellow-400 transition-all"
+						class="mt-6 sm:mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-6 text-sm font-black text-stone-950 shadow-md hover:from-amber-400 hover:to-yellow-400 active:scale-95 transition-all"
 					>
 						<Search class="h-4 w-4 text-stone-950" />
 						<span>Search Shows</span>
@@ -302,7 +308,7 @@
 					<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
 						{#each tracker.searchResults as show}
 							<div class="glass-card group rounded-2xl overflow-hidden bg-white border border-stone-200 flex flex-col justify-between shadow-sm">
-								<div class="relative aspect-[2/3] bg-stone-100 overflow-hidden">
+								<div class="relative aspect-[2/3] bg-stone-100 overflow-hidden rounded-t-xl">
 									<img
 										src={show.image?.medium || show.image?.original || '/placeholder.png'}
 										alt={show.name}
@@ -328,16 +334,16 @@
 									</div>
 								</div>
 
-								<div class="p-2 flex flex-col sm:flex-row items-center gap-1 bg-white border-t border-stone-100">
+								<div class="p-3 flex flex-col sm:flex-row items-center gap-2 bg-stone-50 border-t border-stone-100">
 									<button
 										onclick={() => quickAddShow(show, 'watching')}
-										class="w-full sm:flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 py-1 text-[10px] sm:text-[11px] font-extrabold text-stone-950 hover:from-amber-400 hover:to-yellow-400 shadow-sm transition-colors"
+										class="w-full sm:flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 min-h-12 text-[10px] sm:text-xs font-extrabold text-stone-950 hover:from-amber-400 hover:to-yellow-400 shadow-sm transition-colors"
 									>
 										+ Watching
 									</button>
 									<button
 										onclick={() => quickAddShow(show, 'yet_to_watch')}
-										class="w-full sm:flex-1 rounded-xl bg-stone-100 py-1 text-[10px] sm:text-[11px] font-bold text-stone-700 hover:bg-stone-200 transition-colors"
+										class="w-full sm:flex-1 rounded-xl bg-white border border-stone-200 min-h-12 text-[10px] sm:text-xs font-bold text-stone-700 hover:bg-stone-100 transition-colors shadow-sm"
 									>
 										+ Queue
 									</button>
@@ -368,7 +374,7 @@
 				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
 					{#each popularShows as show}
 						<div class="glass-card group rounded-2xl overflow-hidden bg-white border border-stone-200 flex flex-col justify-between shadow-sm">
-							<div class="relative aspect-[2/3] bg-stone-100 overflow-hidden">
+							<div class="relative aspect-[2/3] bg-stone-100 overflow-hidden rounded-t-xl">
 								<img
 									src={show.image?.medium || '/placeholder.png'}
 									alt={show.name}
@@ -394,16 +400,16 @@
 								</div>
 							</div>
 
-							<div class="p-2 flex flex-col sm:flex-row items-center gap-1 bg-white border-t border-stone-100">
+							<div class="p-3 flex flex-col sm:flex-row items-center gap-2 bg-stone-50 border-t border-stone-100">
 								<button
 									onclick={() => quickAddShow(show, 'watching')}
-									class="w-full sm:flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 py-1 text-[10px] sm:text-[11px] font-extrabold text-stone-950 hover:from-amber-400 hover:to-yellow-400 shadow-sm transition-colors"
+									class="w-full sm:flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 min-h-12 text-[10px] sm:text-xs font-extrabold text-stone-950 hover:from-amber-400 hover:to-yellow-400 shadow-sm transition-colors"
 								>
 									+ Watching
 								</button>
 								<button
 									onclick={() => quickAddShow(show, 'yet_to_watch')}
-									class="w-full sm:flex-1 rounded-xl bg-stone-100 py-1 text-[10px] sm:text-[11px] font-bold text-stone-700 hover:bg-stone-200 transition-colors"
+									class="w-full sm:flex-1 rounded-xl bg-white border border-stone-200 min-h-12 text-[10px] sm:text-xs font-bold text-stone-700 hover:bg-stone-100 transition-colors shadow-sm"
 								>
 									+ Queue
 								</button>
