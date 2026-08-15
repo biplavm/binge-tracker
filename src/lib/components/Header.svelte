@@ -56,7 +56,7 @@
 <!-- Top Sticky Navbar -->
 <header class="glass-panel sticky top-0 z-40 w-full border-b border-stone-200/80 px-3 py-2.5 sm:px-6 sm:py-3">
 	<div class="mx-auto flex flex-col gap-2.5 max-w-7xl">
-		<!-- Top Bar: Brand Logo & Icon Action Buttons -->
+		<!-- Top Bar: Brand Logo & Spoiler Shield -->
 		<div class="flex items-center justify-between gap-2">
 			<!-- Brand Logo -->
 			<button class="flex items-center gap-2.5 text-left focus:outline-none group shrink-0" onclick={() => (tracker.activeTab = 'watching')}>
@@ -71,17 +71,8 @@
 				</div>
 			</button>
 
-			<!-- Desktop & Mobile Icon-Only Action Buttons -->
+			<!-- Action Buttons (Anti-Spoiler & Account) -->
 			<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-				<!-- Install PWA Icon Button -->
-				<button
-					onclick={handleInstallPWA}
-					class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 shadow-sm transition-all"
-					title="Install BingeTrack PWA App"
-				>
-					<Download class="h-4 w-4 text-amber-800" />
-				</button>
-
 				<!-- Anti-Spoiler Shield Icon Button -->
 				<button
 					onclick={() => tracker.toggleSpoilerMode()}
@@ -99,27 +90,27 @@
 					{/if}
 				</button>
 
-				<!-- Auth / Cloud Sync User Icon Button -->
-				{#if currentUser}
-					<div class="flex items-center gap-1 bg-amber-50 p-1 sm:p-1.5 rounded-xl border border-amber-300 shadow-sm" title={`Signed in as ${currentUser.email}`}>
-						<CloudCheck class={`h-4 w-4 text-amber-700 ${isSyncing ? 'animate-spin' : ''}`} />
+				<!-- Desktop Account Button -->
+				<div class="hidden sm:block">
+					{#if currentUser}
 						<button
-							onclick={() => signOutUser()}
-							class="text-stone-400 hover:text-red-600 transition-colors p-0.5"
-							title="Sign Out"
+							onclick={() => (showAuthModal = true)}
+							class="flex items-center gap-1 bg-amber-50 p-1.5 rounded-xl border border-amber-300 shadow-sm hover:bg-amber-100 transition-all"
+							title={`Signed in as ${currentUser.email}`}
 						>
-							<LogOut class="h-3.5 w-3.5" />
+							<CloudCheck class={`h-4 w-4 text-amber-700 ${isSyncing ? 'animate-spin' : ''}`} />
+							<span class="text-xs font-extrabold text-amber-900 px-1 truncate max-w-[120px]">{currentUser.email?.split('@')[0]}</span>
 						</button>
-					</div>
-				{:else}
-					<button
-						onclick={() => (showAuthModal = true)}
-						class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
-						title="Sign In / Account"
-					>
-						<UserIcon class="h-4 w-4 text-stone-950" />
-					</button>
-				{/if}
+					{:else}
+						<button
+							onclick={() => (showAuthModal = true)}
+							class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
+							title="Sign In / Account Settings"
+						>
+							<UserIcon class="h-4 w-4 text-stone-950" />
+						</button>
+					{/if}
+				</div>
 			</div>
 		</div>
 
@@ -171,7 +162,7 @@
 		</div>
 	</div>
 
-	<!-- Navigation Tabs Bar -->
+	<!-- Navigation Tabs Bar (Desktop) -->
 	<nav class="hidden sm:flex mx-auto mt-2.5 max-w-7xl items-center justify-center gap-1.5 border-t border-stone-200/80 pt-2 overflow-x-auto no-scrollbar">
 		<button
 			onclick={() => (tracker.activeTab = 'watching')}
@@ -268,16 +259,6 @@
 	</button>
 
 	<button
-		onclick={() => (tracker.activeTab = 'stats')}
-		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
-			tracker.activeTab === 'stats' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
-		}`}
-	>
-		<BarChart3 class={`h-4 w-4 ${tracker.activeTab === 'stats' ? 'text-amber-600' : 'text-stone-400'}`} />
-		<span class="text-[9px]">Wrapped</span>
-	</button>
-
-	<button
 		onclick={() => (tracker.activeTab = 'discover')}
 		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'discover' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
@@ -286,11 +267,29 @@
 		<Sparkles class={`h-4 w-4 ${tracker.activeTab === 'discover' ? 'text-amber-600' : 'text-stone-400'}`} />
 		<span class="text-[9px]">Discover</span>
 	</button>
+
+	<!-- Account Button in Bottom Nav -->
+	<button
+		onclick={() => (showAuthModal = true)}
+		class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all text-stone-500 hover:text-stone-900"
+	>
+		{#if currentUser}
+			<CloudCheck class={`h-4 w-4 text-amber-700 ${isSyncing ? 'animate-spin' : ''}`} />
+			<span class="text-[9px] font-extrabold text-amber-900 truncate max-w-[45px]">{currentUser.email?.split('@')[0]}</span>
+		{:else}
+			<UserIcon class="h-4 w-4 text-stone-600" />
+			<span class="text-[9px]">Account</span>
+		{/if}
+	</button>
 </div>
 
-<!-- Auth Modal -->
+<!-- Auth & Account Settings Modal -->
 {#if showAuthModal}
-	<AuthModal onClose={() => (showAuthModal = false)} />
+	<AuthModal
+		currentUser={currentUser}
+		onClose={() => (showAuthModal = false)}
+		onOpenInstallGuide={() => (showPwaModal = true)}
+	/>
 {/if}
 
 <!-- PWA Install Guide Modal -->
