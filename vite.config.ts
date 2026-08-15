@@ -9,31 +9,51 @@ export default defineConfig({
 		sveltekit(),
 		SvelteKitPWA({
 			srcDir: './src',
-			mode: 'development',
+			mode: 'production',
 			strategies: 'generateSW',
+			registerType: 'autoUpdate',
+			injectRegister: 'auto',
 			scope: '/',
 			base: '/',
 			manifest: {
 				name: 'BingeTrack - TV & Episode Tracker',
 				short_name: 'BingeTrack',
 				description: 'Personal TV tracker, pace planner, anti-spoiler shield, and hiatus radar',
-				theme_color: '#0b0f19',
-				background_color: '#0b0f19',
+				theme_color: '#fcfbf7',
+				background_color: '#fcfbf7',
 				display: 'standalone',
+				orientation: 'portrait',
+				start_url: '/',
+				scope: '/',
 				icons: [
+					{
+						src: '/pwa-192x192.png',
+						sizes: '192x192',
+						type: 'image/png',
+						purpose: 'any'
+					},
+					{
+						src: '/pwa-512x512.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'any'
+					},
 					{
 						src: '/icon-192x192.png',
 						sizes: '192x192',
-						type: 'image/png'
+						type: 'image/png',
+						purpose: 'maskable'
 					},
 					{
 						src: '/icon-512x512.png',
 						sizes: '512x512',
-						type: 'image/png'
+						type: 'image/png',
+						purpose: 'maskable'
 					}
 				]
 			},
 			workbox: {
+				globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
 				runtimeCaching: [
 					{
 						urlPattern: /^https:\/\/api\.tvmaze\.com\/.*/i,
