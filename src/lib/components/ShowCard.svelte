@@ -104,102 +104,71 @@
 	}
 </script>
 
-<div class="glass-card group relative overflow-hidden rounded-2xl flex flex-row bg-white border border-stone-200 shadow-sm">
-	<!-- Left: Poster Image -->
-	<div class="relative w-28 sm:w-44 shrink-0 aspect-[2/3] bg-stone-100 overflow-hidden">
+<div class="glass-card group relative overflow-hidden rounded-2xl flex flex-col bg-white border border-stone-200 shadow-sm">
+	<!-- Top: Poster Image -->
+	<div class="relative w-full aspect-[16/9] bg-stone-100 overflow-hidden">
 		<img
 			src={showPoster}
 			alt={showName}
 			loading="lazy"
 			class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 		/>
-		<div class="absolute inset-0 bg-gradient-to-t from-stone-900/30 via-transparent to-transparent"></div>
+		<div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent"></div>
 
 		<!-- TVMaze Rating Badge -->
 		{#if showRatingAverage}
-			<div class="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-amber-50/95 px-2 py-0.5 text-[10px] font-bold text-amber-900 backdrop-blur-md border border-amber-300 shadow-sm">
-				<Star class="h-3 w-3 fill-amber-500 text-amber-500" />
+			<div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-black text-stone-950 shadow-sm">
+				<Star class="h-3 w-3 fill-stone-950 text-stone-950" />
 				<span>{showRatingAverage}</span>
 			</div>
 		{/if}
 
 		<!-- Storage Location Indicator Badge -->
-		<div class="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-stone-950/70 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md">
+		<div class="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold text-stone-800 backdrop-blur-md border border-stone-200 shadow-sm">
 			{#if isUserSignedIn}
-				<CloudCheck class="h-3 w-3 text-amber-300" />
-				<span class="hidden sm:inline">Cloud</span>
+				<CloudCheck class="h-3 w-3 text-emerald-600" />
+				<span class="hidden sm:inline">Cloud Synced</span>
 			{:else}
-				<HardDrive class="h-3 w-3 text-stone-300" />
-				<span class="hidden sm:inline">Local</span>
+				<HardDrive class="h-3 w-3 text-stone-500" />
+				<span class="hidden sm:inline">Local Only</span>
 			{/if}
 		</div>
 
-		<!-- Network Badge -->
-		{#if showNetworkName}
-			<div class="absolute bottom-2 left-2 hidden sm:block rounded-md bg-stone-900/80 px-2 py-0.5 text-[10px] font-bold text-amber-200 backdrop-blur-md">
-				{showNetworkName}
+		<!-- Bottom Overlay Details -->
+		<div class="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
+			<div>
+				<h3 class="text-base font-extrabold text-white font-heading group-hover:text-amber-300 transition-colors drop-shadow-sm truncate max-w-[200px] sm:max-w-[300px]">
+					{showName}
+				</h3>
+				<p class="text-xs text-stone-200 font-medium drop-shadow-sm truncate">
+					{showPremieredYear || 'TBA'} • {showGenres.slice(0, 2).join(', ')}
+				</p>
 			</div>
-		{/if}
+
+			<!-- Network Badge -->
+			{#if showNetworkName}
+				<div class="rounded-md bg-stone-900/80 px-2 py-0.5 text-[10px] font-bold text-amber-200 backdrop-blur-md whitespace-nowrap">
+					{showNetworkName}
+				</div>
+			{/if}
+		</div>
 	</div>
 
-	<!-- Right: Content Details -->
-	<div class="flex-1 p-3 sm:p-5 flex flex-col justify-between gap-2.5 min-w-0">
-		<div>
-			<!-- Title & Action Triggers -->
-			<div class="flex items-start justify-between gap-1.5">
-				<div class="min-w-0 flex-1">
-					<h3 class="text-sm sm:text-lg font-extrabold text-stone-900 tracking-tight font-heading group-hover:text-amber-600 transition-colors truncate">
-						{showName}
-					</h3>
-					<p class="text-[11px] sm:text-xs text-stone-500 font-medium truncate">
-						{showPremieredYear || 'TBA'} • {showGenres.slice(0, 2).join(', ')}
-					</p>
-				</div>
-
-				<div class="flex items-center gap-1 shrink-0">
-					<button
-						onclick={() => (showReviewInput = !showReviewInput)}
-						class={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
-							reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
-						}`}
-						title="Personal Notes / Review"
-					>
-						<MessageSquare class="h-4 w-4 sm:h-5 sm:w-5" />
-					</button>
-
-					<button
-						onclick={() => showId && tracker.openShowModal(showId)}
-						class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
-						title="Full Episode Breakdown"
-					>
-						<List class="h-4 w-4 sm:h-5 sm:w-5" />
-					</button>
-					<button
-						onclick={() => {
-							if (showId && confirm(`Are you sure you want to remove "${showName}" from your tracked shows?`)) {
-								tracker.removeShow(showId);
-							}
-						}}
-						class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
-						title="Remove from Library"
-					>
-						<Trash2 class="h-4 w-4 sm:h-5 sm:w-5" />
-					</button>
-				</div>
-			</div>
-
+	<!-- Bottom: Content Details -->
+	<div class="flex-1 p-3 sm:p-5 flex flex-col justify-between gap-3 min-w-0 bg-[#fcfbf7]">
+		<!-- Action Triggers -->
+		<div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-3">
 			<!-- Personal Star Rating Selector -->
-			<div class="mt-2 flex items-center gap-2">
-				<span class="text-xs font-bold text-stone-500 uppercase tracking-wider mr-1">My Score:</span>
+			<div class="flex items-center gap-2">
 				<div class="flex items-center gap-1">
 					{#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as star}
 						<button
 							onclick={() => setPersonalRating(star)}
-							class="flex h-8 w-8 items-center justify-center focus:outline-none transition-transform hover:scale-125"
+							class="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center focus:outline-none transition-transform hover:scale-125"
 							title={`Rate ${star}/10`}
 						>
 							<Star
-								class={`h-5 w-5 ${
+								class={`h-4 w-4 sm:h-5 sm:w-5 ${
 									star <= currentRating
 										? 'fill-amber-500 text-amber-500'
 										: 'text-stone-300 hover:text-amber-400'
@@ -208,10 +177,41 @@
 						</button>
 					{/each}
 				</div>
-				{#if currentRating > 0}
-					<span class="text-xs font-black text-amber-900 ml-1">{currentRating}/10</span>
-				{/if}
 			</div>
+
+			<div class="flex items-center gap-1 shrink-0 ml-auto">
+				<button
+					onclick={() => (showReviewInput = !showReviewInput)}
+					class={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+						reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+					}`}
+					title="Personal Notes / Review"
+				>
+					<MessageSquare class="h-4 w-4 sm:h-5 sm:w-5" />
+				</button>
+
+				<button
+					onclick={() => showId && tracker.openShowModal(showId)}
+					class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
+					title="Full Episode Breakdown"
+				>
+					<List class="h-4 w-4 sm:h-5 sm:w-5" />
+				</button>
+				<button
+					onclick={() => {
+						if (showId && confirm(`Are you sure you want to remove "${showName}" from your tracked shows?`)) {
+							tracker.removeShow(showId);
+						}
+					}}
+					class="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+					title="Remove from Library"
+				>
+					<Trash2 class="h-4 w-4 sm:h-5 sm:w-5" />
+				</button>
+			</div>
+		</div>
+
+
 
 			<!-- Inline Review / Personal Note Input -->
 			{#if showReviewInput}
@@ -344,7 +344,7 @@
 					<p class="text-[11px] text-stone-500">Updating episode schedule...</p>
 				</div>
 			{/if}
-		</div>
+
 
 		<!-- Bottom Season Checklist -->
 		{#if seasonStats.length > 0}
