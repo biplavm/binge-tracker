@@ -77,24 +77,25 @@
 			<div class="flex items-center gap-2">
 				<button
 					onclick={() => tracker.toggleSpoilerMode()}
-					class={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold border transition-all ${
+					class={`flex min-h-10 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold border transition-all ${
 						tracker.antiSpoilerMode
 							? 'bg-amber-100 text-amber-900 border-amber-300'
 							: 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200'
 					}`}
 				>
 					{#if tracker.antiSpoilerMode}
-						<EyeOff class="h-3.5 w-3.5 text-amber-800" />
+						<EyeOff class="h-4 w-4 text-amber-800" />
 						<span class="hidden sm:inline">Spoiler Shield</span>
 					{:else}
-						<Eye class="h-3.5 w-3.5" />
+						<Eye class="h-4 w-4" />
 						<span class="hidden sm:inline">Spoilers Visible</span>
 					{/if}
 				</button>
 
 				<button
 					onclick={onClose}
-					class="rounded-xl p-2 text-stone-400 hover:bg-stone-200 hover:text-stone-900 transition-colors"
+					class="flex h-11 w-11 items-center justify-center rounded-xl text-stone-400 hover:bg-stone-200 hover:text-stone-900 transition-colors"
+					title="Close Modal"
 				>
 					<X class="h-5 w-5" />
 				</button>
@@ -102,14 +103,14 @@
 		</div>
 
 		<!-- Season Navigation Tabs -->
-		<div class="flex items-center justify-between border-b border-stone-200 bg-stone-50/50 px-4 py-2 overflow-x-auto">
+		<div class="flex items-center justify-between border-b border-stone-200 bg-stone-50/50 px-4 py-2 overflow-x-auto gap-2">
 			<div class="flex items-center gap-1.5">
 				{#each seasonsList as s}
 					{@const eps = seasonsMap().get(s) || []}
 					{@const isCompleted = eps.length > 0 && eps.every(ep => watchedIds.includes(ep.id))}
 					<button
 						onclick={() => (activeSeason = s)}
-						class={`flex min-h-12 min-w-12 items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-extrabold transition-all ${
+						class={`flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-xs sm:text-sm font-extrabold transition-all shrink-0 ${
 							activeSeason === s
 								? 'bg-amber-500 text-stone-950 shadow-sm'
 								: 'bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-900'
@@ -125,10 +126,10 @@
 
 			<button
 				onclick={toggleSeasonWatched}
-				class="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-amber-100 px-4 py-2 text-sm font-extrabold text-amber-900 border border-amber-300 hover:bg-amber-200 transition-all shrink-0"
+				class="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-amber-100 px-4 py-2 text-xs sm:text-sm font-extrabold text-amber-900 border border-amber-300 hover:bg-amber-200 transition-all shrink-0"
 			>
-				<CheckCheck class="h-5 w-5 text-amber-800" />
-				<span>{isSeasonFullyWatched ? 'Unmark Season' : 'Mark Season Watched'}</span>
+				<CheckCheck class="h-4 w-4 sm:h-5 sm:w-5 text-amber-800" />
+				<span>{isSeasonFullyWatched ? 'Unmark Season' : 'Mark Season'}</span>
 			</button>
 		</div>
 

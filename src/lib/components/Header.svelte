@@ -133,15 +133,15 @@
 		</div>
 
 		<!-- Search Bar with Year Filter -->
-		<div class="flex items-center w-full rounded-2xl bg-white border border-stone-200 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 shadow-sm transition-all overflow-hidden p-1">
+		<div class="flex items-center w-full rounded-2xl bg-white border border-stone-200 focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20 shadow-sm transition-all overflow-hidden p-1 min-h-12">
 			<div class="relative flex-1 min-w-0 flex items-center">
-				<Search class="absolute left-3 h-4 w-4 text-stone-400" />
+				<Search class="absolute left-3.5 h-4 w-4 text-stone-400" />
 				<input
 					type="text"
 					placeholder="Search shows (Severance)..."
 					bind:value={tracker.searchQuery}
 					onkeydown={(e) => e.key === 'Enter' && tracker.performSearch()}
-					class="w-full bg-transparent pl-9 pr-7 py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
+					class="w-full bg-transparent pl-10 pr-8 py-2.5 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
 				/>
 				{#if tracker.searchQuery}
 					<button
@@ -149,7 +149,8 @@
 							tracker.searchQuery = '';
 							tracker.searchResults = [];
 						}}
-						class="absolute right-2 text-stone-400 hover:text-stone-700"
+						class="absolute right-2 flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+						title="Clear search"
 					>
 						<X class="h-4 w-4" />
 					</button>
@@ -164,13 +165,13 @@
 				maxlength="4"
 				bind:value={tracker.searchYear}
 				onkeydown={(e) => e.key === 'Enter' && tracker.performSearch()}
-				class="w-16 shrink-0 bg-transparent px-2 py-2 text-center text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
+				class="w-16 shrink-0 bg-transparent px-2 py-2.5 text-center text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
 			/>
 
 			<button
 				onclick={() => tracker.performSearch()}
 				disabled={tracker.isSearching}
-				class="flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 text-xs font-extrabold text-stone-950 hover:from-amber-400 hover:to-yellow-400 active:scale-95 disabled:opacity-50 transition-all ml-1"
+				class="flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 text-xs font-extrabold text-stone-950 hover:from-amber-400 hover:to-yellow-400 active:scale-95 disabled:opacity-50 transition-all ml-1"
 			>
 				{#if tracker.isSearching}
 					<div class="h-4 w-4 animate-spin rounded-full border-2 border-stone-950 border-t-transparent"></div>
@@ -186,7 +187,7 @@
 	<nav class="hidden sm:flex mx-auto mt-2.5 max-w-7xl items-center justify-center gap-1.5 border-t border-stone-200/80 pt-2 overflow-x-auto no-scrollbar">
 		<button
 			onclick={() => (tracker.activeTab = 'watching')}
-			class={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shrink-0 ${
+			class={`flex min-h-10 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 ${
 				tracker.activeTab === 'watching'
 					? 'bg-amber-500/15 text-amber-900 border border-amber-400/50 shadow-sm'
 					: 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
@@ -198,7 +199,7 @@
 
 		<button
 			onclick={() => (tracker.activeTab = 'yet_to_watch')}
-			class={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shrink-0 ${
+			class={`flex min-h-10 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 ${
 				tracker.activeTab === 'yet_to_watch'
 					? 'bg-amber-500/15 text-amber-900 border border-amber-400/50 shadow-sm'
 					: 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
@@ -210,7 +211,7 @@
 
 		<button
 			onclick={() => (tracker.activeTab = 'lists')}
-			class={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shrink-0 ${
+			class={`flex min-h-10 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 ${
 				tracker.activeTab === 'lists'
 					? 'bg-amber-500/15 text-amber-900 border border-amber-400/50 shadow-sm'
 					: 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
@@ -222,7 +223,7 @@
 
 		<button
 			onclick={() => (tracker.activeTab = 'stats')}
-			class={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shrink-0 ${
+			class={`flex min-h-10 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 ${
 				tracker.activeTab === 'stats'
 					? 'bg-amber-500/15 text-amber-900 border border-amber-400/50 shadow-sm'
 					: 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
@@ -234,7 +235,7 @@
 
 		<button
 			onclick={() => (tracker.activeTab = 'discover')}
-			class={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all shrink-0 ${
+			class={`flex min-h-10 items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 ${
 				tracker.activeTab === 'discover'
 					? 'bg-amber-500/15 text-amber-900 border border-amber-400/50 shadow-sm'
 					: 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
@@ -247,10 +248,10 @@
 </header>
 
 <!-- Mobile Bottom Fixed Navigation Bar -->
-<div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] flex items-center justify-around">
+<div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] flex items-center justify-around">
 	<button
 		onclick={() => (tracker.activeTab = 'watching')}
-		class={`flex flex-col items-center gap-1 px-2 py-1 rounded-xl transition-all ${
+		class={`flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'watching' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
@@ -260,7 +261,7 @@
 
 	<button
 		onclick={() => (tracker.activeTab = 'yet_to_watch')}
-		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
+		class={`flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'yet_to_watch' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
@@ -270,7 +271,7 @@
 
 	<button
 		onclick={() => (tracker.activeTab = 'lists')}
-		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
+		class={`flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'lists' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
@@ -280,7 +281,7 @@
 
 	<button
 		onclick={() => (tracker.activeTab = 'discover')}
-		class={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
+		class={`flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-all ${
 			tracker.activeTab === 'discover' ? 'text-amber-800 font-extrabold' : 'text-stone-500'
 		}`}
 	>
@@ -291,7 +292,7 @@
 	<!-- Account Button in Bottom Nav -->
 	<button
 		onclick={() => (showAuthModal = true)}
-		class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all text-stone-500 hover:text-stone-900"
+		class="flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-all text-stone-500 hover:text-stone-900"
 	>
 		{#if currentUser}
 			<CloudCheck class={`h-4 w-4 text-amber-700 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -327,7 +328,7 @@
 						<p class="text-xs text-stone-500 font-medium">Add to Home Screen for standalone app access</p>
 					</div>
 				</div>
-				<button onclick={() => (showPwaModal = false)} class="rounded-xl p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-900">
+				<button onclick={() => (showPwaModal = false)} class="flex h-11 w-11 items-center justify-center rounded-xl text-stone-400 hover:bg-stone-100 hover:text-stone-900 transition-colors">
 					<X class="h-5 w-5" />
 				</button>
 			</div>
@@ -357,7 +358,7 @@
 
 			<button
 				onclick={() => (showPwaModal = false)}
-				class="w-full rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 py-2.5 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
+				class="flex min-h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 py-2.5 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
 			>
 				Got it!
 			</button>

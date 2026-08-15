@@ -114,7 +114,7 @@
 					</p>
 				</div>
 			</div>
-			<button onclick={onClose} class="rounded-xl p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900 min-h-10 min-w-10 flex items-center justify-center transition-colors">
+			<button onclick={onClose} class="flex h-11 w-11 items-center justify-center rounded-xl text-stone-400 hover:bg-stone-100 hover:text-stone-900 transition-colors" title="Close">
 				<X class="h-5 w-5" />
 			</button>
 		</div>
@@ -279,7 +279,7 @@
 			<div class="text-center pt-2 border-t border-stone-200 mt-2">
 				<button
 					onclick={() => (mode = mode === 'login' ? 'signup' : 'login')}
-					class="text-xs font-bold text-amber-900 underline hover:text-amber-700 min-h-10 px-2"
+					class="inline-flex min-h-11 items-center justify-center text-xs font-bold text-amber-900 underline hover:text-amber-700 px-3 transition-colors"
 				>
 					{mode === 'login' ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
 				</button>

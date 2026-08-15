@@ -161,7 +161,7 @@
 				<div class="flex items-center gap-1 shrink-0">
 					<button
 						onclick={() => (showReviewInput = !showReviewInput)}
-						class={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+						class={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
 							reviewText ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
 						}`}
 						title="Personal Notes / Review"
@@ -171,7 +171,7 @@
 
 					<button
 						onclick={() => showId && tracker.openShowModal(showId)}
-						class="flex h-9 w-9 items-center justify-center rounded-lg bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
+						class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-amber-100 hover:text-amber-900 transition-colors"
 						title="Full Episode Breakdown"
 					>
 						<List class="h-4 w-4" />
@@ -182,7 +182,7 @@
 								tracker.removeShow(showId);
 							}
 						}}
-						class="flex h-9 w-9 items-center justify-center rounded-lg bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+						class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
 						title="Remove from Library"
 					>
 						<Trash2 class="h-4 w-4" />
@@ -199,7 +199,7 @@
 							{#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as star}
 								<button
 									onclick={() => setPersonalRating(star)}
-									class="flex h-6 w-6 items-center justify-center focus:outline-none transition-transform hover:scale-125"
+									class="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-amber-100/50 p-1 focus:outline-none transition-transform hover:scale-110"
 									title={`Rate ${star}/10`}
 								>
 									<Star
@@ -221,18 +221,18 @@
 						bind:value={reviewText}
 						placeholder="Write personal review notes or thoughts..."
 						rows="2"
-						class="w-full rounded-lg bg-white p-3 text-sm text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none"
+						class="w-full rounded-xl bg-white p-3 text-sm text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500 focus:outline-none"
 					></textarea>
 					<div class="flex justify-end gap-2">
 						<button
 							onclick={() => (showReviewInput = false)}
-							class="min-h-12 min-w-[80px] px-3 font-bold text-stone-500 hover:text-stone-800 text-sm transition-colors"
+							class="flex min-h-11 min-w-[80px] items-center justify-center rounded-xl px-3 font-bold text-stone-500 hover:text-stone-800 text-xs sm:text-sm transition-colors"
 						>
 							Cancel
 						</button>
 						<button
 							onclick={saveReview}
-							class="min-h-12 min-w-[80px] rounded-lg bg-amber-500 px-4 font-extrabold text-stone-950 hover:bg-amber-400 text-sm transition-colors"
+							class="flex min-h-11 min-w-[80px] items-center justify-center rounded-xl bg-amber-500 px-4 font-extrabold text-stone-950 hover:bg-amber-400 text-xs sm:text-sm transition-colors shadow-sm"
 						>
 							Save Note
 						</button>

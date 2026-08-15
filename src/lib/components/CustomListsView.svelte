@@ -88,7 +88,7 @@
 
 		<button
 			onclick={() => (showCreateModal = true)}
-			class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-3 py-2 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all shrink-0"
+			class="flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 py-2 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all shrink-0"
 		>
 			<ListPlus class="h-4 w-4 text-stone-950" />
 			<span>Create List</span>
@@ -138,24 +138,24 @@
 						<div class="flex items-center gap-2">
 							<button
 								onclick={() => (activeListForAdd = list)}
-								class="flex items-center gap-1 rounded-xl bg-stone-100 px-3 py-1.5 text-xs font-bold text-stone-700 hover:bg-stone-200 transition-colors"
+								class="flex min-h-10 items-center gap-1.5 rounded-xl bg-stone-100 px-3.5 py-2 text-xs font-bold text-stone-700 hover:bg-stone-200 transition-colors"
 							>
-								<Plus class="h-3.5 w-3.5" />
+								<Plus class="h-4 w-4" />
 								<span>Add Shows</span>
 							</button>
 
 							<button
 								onclick={() => openShareModal(list)}
-								class="flex items-center gap-1 rounded-xl bg-amber-100 px-3 py-1.5 text-xs font-extrabold text-amber-900 border border-amber-300 hover:bg-amber-200 transition-colors"
+								class="flex min-h-10 items-center gap-1.5 rounded-xl bg-amber-100 px-3.5 py-2 text-xs font-extrabold text-amber-900 border border-amber-300 hover:bg-amber-200 transition-colors"
 							>
-								<Share2 class="h-3.5 w-3.5 text-amber-800" />
+								<Share2 class="h-4 w-4 text-amber-800" />
 								<span>Share List</span>
 							</button>
 						</div>
 
 						<button
 							onclick={() => list.id && tracker.deleteList(list.id)}
-							class="text-stone-400 hover:text-red-600 p-1.5 transition-colors"
+							class="flex h-10 w-10 items-center justify-center rounded-xl text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
 							title="Delete List"
 						>
 							<Trash2 class="h-4 w-4" />
@@ -165,7 +165,7 @@
 			{/each}
 		</div>
 	{:else}
-		<div class="glass-panel rounded-3xl p-8 sm:p-12 text-center bg-white border border-stone-200 max-w-xl mx-auto my-6 shadow-sm">
+		<div class="glass-panel rounded-2xl p-6 sm:p-10 text-center bg-white border border-stone-200 max-w-xl mx-auto my-6 shadow-sm">
 			<div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 border border-amber-300 mb-4">
 				<ListPlus class="h-8 w-8" />
 			</div>
@@ -175,7 +175,7 @@
 			</p>
 			<button
 				onclick={() => (showCreateModal = true)}
-				class="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-5 py-2.5 text-xs font-black text-stone-950 shadow-md hover:from-amber-400 hover:to-yellow-400 transition-all"
+				class="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-2.5 text-xs font-black text-stone-950 shadow-md hover:from-amber-400 hover:to-yellow-400 transition-all"
 			>
 				<Plus class="h-4 w-4 text-stone-950" />
 				<span>Create First List</span>
@@ -198,7 +198,7 @@
 						type="text"
 						placeholder="e.g. Top Sci-Fi 2026, Weekend Binge..."
 						bind:value={newListName}
-						class="w-full rounded-xl bg-stone-50 px-3 py-2 text-sm text-stone-900 border border-stone-300 focus:border-amber-500 focus:outline-none"
+						class="w-full rounded-xl bg-stone-50 px-3.5 py-2.5 text-sm text-stone-900 border border-stone-300 focus:border-amber-500 focus:outline-none min-h-11"
 					/>
 				</div>
 
@@ -209,7 +209,7 @@
 						placeholder="Add a brief theme or recommendation note..."
 						rows="2"
 						bind:value={newListDescription}
-						class="w-full rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-900 border border-stone-300 focus:border-amber-500 focus:outline-none"
+						class="w-full rounded-xl bg-stone-50 px-3.5 py-2.5 text-xs text-stone-900 border border-stone-300 focus:border-amber-500 focus:outline-none"
 					></textarea>
 				</div>
 			</div>
@@ -217,13 +217,13 @@
 			<div class="flex justify-end gap-2 pt-2">
 				<button
 					onclick={() => (showCreateModal = false)}
-					class="rounded-xl px-4 py-2 text-xs font-bold text-stone-600 hover:bg-stone-100"
+					class="flex min-h-11 items-center justify-center rounded-xl px-4 py-2 text-xs font-bold text-stone-600 hover:bg-stone-100 transition-colors"
 				>
 					Cancel
 				</button>
 				<button
 					onclick={handleCreateList}
-					class="rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-4 py-2 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400"
+					class="flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-5 py-2 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
 				>
 					Create List
 				</button>
@@ -242,7 +242,7 @@
 					<h3 class="text-base font-extrabold text-stone-900 font-heading">Add Shows to "{activeListForAdd.name}"</h3>
 					<p class="text-xs text-stone-500">Tap shows in your library to toggle inclusion</p>
 				</div>
-				<button onclick={() => (activeListForAdd = null)} class="rounded-xl p-1.5 text-stone-400 hover:bg-stone-100">
+				<button onclick={() => (activeListForAdd = null)} class="flex h-11 w-11 items-center justify-center rounded-xl text-stone-400 hover:bg-stone-100 transition-colors" title="Close">
 					<X class="h-5 w-5" />
 				</button>
 			</div>
@@ -263,7 +263,7 @@
 
 						<button
 							onclick={() => toggleShowInList(currentListId, show)}
-							class={`flex items-center gap-1 rounded-xl px-3 py-1 text-xs font-extrabold transition-all ${
+							class={`flex min-h-10 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-extrabold transition-all ${
 								isInList
 									? 'bg-amber-500 text-stone-950 shadow-sm'
 									: 'bg-stone-200 text-stone-700 hover:bg-stone-300'
@@ -291,7 +291,7 @@
 					<Share2 class="h-5 w-5 text-amber-700" />
 					<h3 class="text-base font-extrabold text-stone-900 font-heading">Share "{activeShareList.list.name}"</h3>
 				</div>
-				<button onclick={() => (activeShareList = null)} class="rounded-xl p-1.5 text-stone-400 hover:bg-stone-100">
+				<button onclick={() => (activeShareList = null)} class="flex h-11 w-11 items-center justify-center rounded-xl text-stone-400 hover:bg-stone-100 transition-colors" title="Close">
 					<X class="h-5 w-5" />
 				</button>
 			</div>
@@ -306,7 +306,7 @@
 				</span>
 				<button
 					onclick={copyShareLink}
-					class="flex items-center gap-1 rounded-xl bg-amber-500 px-3 py-1.5 text-xs font-extrabold text-stone-950 shadow-sm hover:bg-amber-400 shrink-0"
+					class="flex min-h-10 items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-extrabold text-stone-950 shadow-sm hover:bg-amber-400 shrink-0 transition-colors"
 				>
 					{#if copiedLink}
 						<Check class="h-3.5 w-3.5 stroke-[3]" /> Copied!
