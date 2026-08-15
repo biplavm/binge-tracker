@@ -15,10 +15,10 @@
 	let watchedEpisodesList = $state<WatchedEpisode[]>([]);
 
 	$effect(() => {
-		const subShows = liveQuery(() => db.shows.toArray()).subscribe((val) => {
+		const subShows = liveQuery(() => db.shows.filter(s => s._syncStatus !== 'deleted').toArray()).subscribe((val) => {
 			trackedShowsList = val || [];
 		});
-		const subEps = liveQuery(() => db.watchedEpisodes.toArray()).subscribe((val) => {
+		const subEps = liveQuery(() => db.watchedEpisodes.filter(e => e._syncStatus !== 'deleted').toArray()).subscribe((val) => {
 			watchedEpisodesList = val || [];
 		});
 		return () => {

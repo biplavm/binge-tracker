@@ -1,5 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 
+export type SyncStatus = 'new' | 'synced' | 'deleted';
+
 export interface TrackedShow {
 	tvmazeId: number;
 	name: string;
@@ -14,6 +16,7 @@ export interface TrackedShow {
 	genres: string[];
 	network?: string;
 	summary?: string;
+	_syncStatus?: SyncStatus;
 }
 
 export interface WatchedEpisode {
@@ -23,6 +26,7 @@ export interface WatchedEpisode {
 	season: number;
 	episodeNumber: number;
 	watchedAt: Date;
+	_syncStatus?: SyncStatus;
 }
 
 export interface UserList {
@@ -31,6 +35,7 @@ export interface UserList {
 	description?: string;
 	isPublic?: boolean;
 	createdAt: Date;
+	_syncStatus?: SyncStatus;
 }
 
 export interface UserListItem {
@@ -40,6 +45,7 @@ export interface UserListItem {
 	showName: string;
 	poster?: string;
 	addedAt: Date;
+	_syncStatus?: SyncStatus;
 }
 
 class TrackerDatabase extends Dexie {
@@ -50,11 +56,11 @@ class TrackerDatabase extends Dexie {
 
 	constructor() {
 		super('BingeTrackDB');
-		this.version(2).stores({
-			shows: 'tvmazeId, status, addedAt, userRating',
-			watchedEpisodes: '++id, tvmazeShowId, tvmazeEpisodeId, [tvmazeShowId+tvmazeEpisodeId]',
-			userLists: '++id, name, createdAt',
-			userListItems: '++id, listId, tvmazeId, [listId+tvmazeId]'
+		this.version(3).stores({
+			shows: 'tvmazeId, status, addedAt, userRating, _syncStatus',
+			watchedEpisodes: '++id, tvmazeShowId, tvmazeEpisodeId, [tvmazeShowId+tvmazeEpisodeId], _syncStatus',
+			userLists: '++id, name, createdAt, _syncStatus',
+			userListItems: '++id, listId, tvmazeId, [listId+tvmazeId], _syncStatus'
 		});
 	}
 }

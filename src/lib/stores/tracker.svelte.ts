@@ -1,7 +1,7 @@
 import { db, type TrackedShow, type UserList, type UserListItem } from '$lib/db';
 import type { TVMazeShow, TVMazeEpisode } from '$lib/services/tvmaze';
 import { searchShows } from '$lib/services/tvmaze';
-import { triggerAutoSync, getCurrentUser, removeShowFromSupabase } from '$lib/supabase';
+import { triggerAutoSync, getCurrentUser } from '$lib/supabase';
 
 export type SortOption = 'last_watched' | 'user_rating' | 'progress' | 'title' | 'year';
 
@@ -65,22 +65,29 @@ class TrackerStore {
 			tvmazeEpisodeId: episode.id,
 			season: episode.season,
 			episodeNumber: episode.number,
-			watchedAt: new Date()
+			watchedAt: new Date(),
+			_syncStatus: 'new'
 		});
 		await triggerAutoSync();
 	}
 
 	async unmarkEpisode(tvmazeShowId: number, tvmazeEpisodeId: number) {
-		await db.watchedEpisodes
-			.where({ tvmazeShowId, tvmazeEpisodeId })
-			.delete();
-		await triggerAutoSync();
+		const existing = await db.watchedEpisodes
+			.where('[tvmazeShowId+tvmazeEpisodeId]')
+			.equals([tvmazeShowId, tvmazeEpisodeId])
+			.first();
+			
+		if (existing && existing.id) {
+			await db.watchedEpisodes.update(existing.id, { _syncStatus: 'deleted' });
+			await triggerAutoSync();
+		}
 	}
 
 	async unmarkLastEpisode(tvmazeShowId: number) {
 		const lastWatched = await db.watchedEpisodes
 			.where('tvmazeShowId')
 			.equals(tvmazeShowId)
+			.filter((e) => e._syncStatus !== 'deleted')
 			.reverse()
 			.sortBy('watchedAt');
 		
@@ -96,13 +103,15 @@ class TrackerStore {
 			tvmazeEpisodeId: ep.id,
 			season: ep.season,
 			episodeNumber: ep.number,
-			watchedAt: new Date()
+			watchedAt: new Date(),
+			_syncStatus: 'new' as const
 		}));
 		await db.watchedEpisodes.bulkPut(records);
 		await triggerAutoSync();
 	}
 
 	async updateShowStatus(show: TrackedShow) {
+		show._syncStatus = 'new';
 		await db.shows.put(show);
 		await triggerAutoSync();
 	}
@@ -110,28 +119,30 @@ class TrackerStore {
 	async updateUserRating(tvmazeId: number, userRating: number, userReview?: string) {
 		const show = await db.shows.get(tvmazeId);
 		if (show) {
-			await db.shows.update(tvmazeId, { userRating, userReview });
+			await db.shows.update(tvmazeId, { userRating, userReview, _syncStatus: 'new' });
 			await triggerAutoSync();
 		}
 	}
 
 	async removeShow(tvmazeShowId: number) {
-		await db.shows.delete(tvmazeShowId);
-		await db.watchedEpisodes.where({ tvmazeShowId }).delete();
-		const user = await getCurrentUser();
-		if (user) {
-			await removeShowFromSupabase(user, tvmazeShowId);
-		}
+		await db.shows.update(tvmazeShowId, { _syncStatus: 'deleted' });
+		const eps = await db.watchedEpisodes.where('tvmazeShowId').equals(tvmazeShowId).toArray();
+		const updates = eps.filter(ep => ep.id).map(ep => ({ key: ep.id!, changes: { _syncStatus: 'deleted' as const } }));
+		await db.watchedEpisodes.bulkUpdate(updates);
+		await triggerAutoSync();
 	}
 
 	// Custom List Management
 	async createCustomList(name: string, description?: string) {
-		return await db.userLists.add({
+		const id = await db.userLists.add({
 			name,
 			description,
 			isPublic: true,
-			createdAt: new Date()
+			createdAt: new Date(),
+			_syncStatus: 'new'
 		});
+		await triggerAutoSync();
+		return id;
 	}
 
 	async addToList(listId: number, show: { tvmazeId: number; name: string; poster?: string }) {
@@ -146,18 +157,24 @@ class TrackerStore {
 				tvmazeId: show.tvmazeId,
 				showName: show.name,
 				poster: show.poster,
-				addedAt: new Date()
+				addedAt: new Date(),
+				_syncStatus: 'new'
 			});
+			await triggerAutoSync();
 		}
 	}
 
 	async removeFromList(itemId: number) {
-		await db.userListItems.delete(itemId);
+		await db.userListItems.update(itemId, { _syncStatus: 'deleted' });
+		await triggerAutoSync();
 	}
 
 	async deleteList(listId: number) {
-		await db.userLists.delete(listId);
-		await db.userListItems.where({ listId }).delete();
+		await db.userLists.update(listId, { _syncStatus: 'deleted' });
+		const items = await db.userListItems.where('listId').equals(listId).toArray();
+		const updates = items.filter(it => it.id).map(it => ({ key: it.id!, changes: { _syncStatus: 'deleted' as const } }));
+		await db.userListItems.bulkUpdate(updates);
+		await triggerAutoSync();
 	}
 }
 

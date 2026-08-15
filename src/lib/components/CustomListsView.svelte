@@ -12,10 +12,10 @@
 	let userListItems = $state<UserListItem[]>([]);
 
 	$effect(() => {
-		const subLists = liveQuery(() => db.userLists.toArray()).subscribe((val) => {
+		const subLists = liveQuery(() => db.userLists.filter(l => l._syncStatus !== 'deleted').toArray()).subscribe((val) => {
 			userLists = val || [];
 		});
-		const subItems = liveQuery(() => db.userListItems.toArray()).subscribe((val) => {
+		const subItems = liveQuery(() => db.userListItems.filter(i => i._syncStatus !== 'deleted').toArray()).subscribe((val) => {
 			userListItems = val || [];
 		});
 		return () => {
