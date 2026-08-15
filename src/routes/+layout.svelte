@@ -60,13 +60,10 @@
 	</main>
 
 	<!-- Footer -->
-	<footer class="border-t border-stone-200 bg-stone-100/80 py-6 text-center text-xs text-stone-500 font-medium">
-		<div class="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-			<p>© 2026 BingeTrack PWA • Local-first IndexedDB storage • Powered by TVMaze REST API</p>
-			<div class="flex items-center gap-4 text-stone-600 font-semibold">
-				<span>Anti-Spoiler Shield: <strong class="text-amber-800 font-extrabold">{tracker.antiSpoilerMode ? 'Active' : 'Disabled'}</strong></span>
-				<span>IndexedDB: <strong class="text-amber-900 font-extrabold">{trackedShowsList.length} Shows Saved</strong></span>
-			</div>
+	<footer class="border-t border-stone-200 bg-stone-100/80 py-4 text-center text-xs text-stone-500 font-medium hidden sm:block">
+		<div class="mx-auto max-w-7xl px-4 flex items-center justify-center gap-6 text-stone-600 font-semibold">
+			<span>Anti-Spoiler Shield: <strong class="text-amber-800 font-extrabold">{tracker.antiSpoilerMode ? 'Active' : 'Disabled'}</strong></span>
+			<span>IndexedDB: <strong class="text-amber-900 font-extrabold">{trackedShowsList.length} Shows Saved</strong></span>
 		</div>
 	</footer>
 
