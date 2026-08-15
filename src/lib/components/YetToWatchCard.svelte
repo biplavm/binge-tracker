@@ -87,7 +87,11 @@
 
 		<div class="flex items-center gap-2">
 			<button
-				onclick={() => tracker.removeShow(show.id)}
+				onclick={() => {
+					if (confirm(`Are you sure you want to remove "${show.name}" from your queue?`)) {
+						tracker.removeShow(show.id);
+					}
+				}}
 				class="rounded-xl p-2 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
 				title="Remove"
 			>

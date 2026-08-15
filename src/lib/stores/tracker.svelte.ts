@@ -77,6 +77,19 @@ class TrackerStore {
 		await triggerAutoSync();
 	}
 
+	async unmarkLastEpisode(tvmazeShowId: number) {
+		const lastWatched = await db.watchedEpisodes
+			.where('tvmazeShowId')
+			.equals(tvmazeShowId)
+			.reverse()
+			.sortBy('watchedAt');
+		
+		if (lastWatched.length > 0) {
+			const ep = lastWatched[0];
+			await this.unmarkEpisode(tvmazeShowId, ep.tvmazeEpisodeId);
+		}
+	}
+
 	async markSeasonWatched(tvmazeShowId: number, episodes: TVMazeEpisode[]) {
 		const records = episodes.map((ep) => ({
 			tvmazeShowId,

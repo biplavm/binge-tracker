@@ -5,7 +5,7 @@
 	import { tracker } from '$lib/stores/tracker.svelte';
 	import { getSupabase } from '$lib/supabase';
 	import { db } from '$lib/db';
-	import { Check, Flame, Star, List, Calendar, Trash2, ChevronRight, Clock, BookmarkPlus, MessageSquare, CloudCheck, HardDrive } from '@lucide/svelte';
+	import { Check, Flame, Star, List, Calendar, Trash2, ChevronRight, Clock, BookmarkPlus, MessageSquare, CloudCheck, HardDrive, Undo2 } from '@lucide/svelte';
 
 	let {
 		show = null,
@@ -175,7 +175,11 @@
 						<List class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
 					</button>
 					<button
-						onclick={() => showId && tracker.removeShow(showId)}
+						onclick={() => {
+							if (showId && confirm(`Are you sure you want to remove "${showName}" from your tracked shows?`)) {
+								tracker.removeShow(showId);
+							}
+						}}
 						class="rounded-xl bg-stone-100 p-1.5 sm:p-2 text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
 						title="Remove from Library"
 					>
@@ -287,13 +291,24 @@
 						</p>
 					{/if}
 
-					<button
-						onclick={() => showId && tracker.markEpisodeWatched(showId, nextEpisode)}
-						class="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 py-1.5 sm:py-2 text-[11px] sm:text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
-					>
-						<Check class="h-3.5 w-3.5 text-stone-950" />
-						<span>Mark S{nextEpisode.season}E{nextEpisode.number} Watched</span>
-					</button>
+					<div class="mt-2 flex items-center gap-1.5">
+						<button
+							onclick={() => showId && tracker.markEpisodeWatched(showId, nextEpisode)}
+							class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 py-1.5 sm:py-2 text-[11px] sm:text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 active:scale-98 transition-all"
+						>
+							<Check class="h-3.5 w-3.5 text-stone-950" />
+							<span>Mark S{nextEpisode.season}E{nextEpisode.number} Watched</span>
+						</button>
+						{#if watchedCount > 0}
+							<button
+								onclick={() => showId && tracker.unmarkLastEpisode(showId)}
+								class="flex items-center justify-center rounded-xl bg-stone-100 p-1.5 sm:p-2 text-stone-500 hover:bg-stone-200 hover:text-stone-800 transition-colors shrink-0"
+								title="Undo last watched episode"
+							>
+								<Undo2 class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+							</button>
+						{/if}
+					</div>
 				</div>
 			{:else if nextEpisode && !isNextEpisodeAired}
 				{@const daysLeft = getDaysUntil(nextEpisode.airdate)}
