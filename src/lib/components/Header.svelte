@@ -64,14 +64,9 @@
 					<Film class="h-4 w-4 sm:h-5 sm:w-5 text-stone-950" />
 				</div>
 				<div>
-					<div class="flex items-center gap-1.5">
-						<h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-stone-900 font-heading">
-							BingeTrack
-						</h1>
-						<span class="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-extrabold text-amber-900 border border-amber-300">
-							PWA
-						</span>
-					</div>
+					<h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-stone-900 font-heading">
+						BingeTrack
+					</h1>
 					<p class="text-[10px] sm:text-xs text-stone-500 hidden sm:block font-medium">TV Tracker & Pace Planner</p>
 				</div>
 			</button>
