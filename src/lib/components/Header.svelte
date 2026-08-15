@@ -1,15 +1,39 @@
 <script lang="ts">
 	import { tracker } from '$lib/stores/tracker.svelte';
-	import { Film, Search, Eye, EyeOff, Tv, Bookmark, BarChart3, Sparkles, Download, X } from '@lucide/svelte';
+	import { supabase, signOutUser, syncLocalDexieToSupabase, fetchSupabaseToDexie } from '$lib/supabase';
+	import type { User } from '@supabase/supabase-js';
+	import AuthModal from '$lib/components/AuthModal.svelte';
+	import { Film, Search, Eye, EyeOff, Tv, Bookmark, BarChart3, Sparkles, Download, X, User as UserIcon, CloudCheck, LogOut } from '@lucide/svelte';
 
 	let deferredPrompt = $state<any>(null);
 	let canInstallPWA = $state<boolean>(false);
+	let currentUser = $state<User | null>(null);
+	let showAuthModal = $state(false);
+	let isSyncing = $state(false);
 
 	if (typeof window !== 'undefined') {
 		window.addEventListener('beforeinstallprompt', (e) => {
 			e.preventDefault();
 			deferredPrompt = e;
 			canInstallPWA = true;
+		});
+
+		// Listen to Supabase auth state changes
+		supabase.auth.getSession().then((res: any) => {
+			currentUser = res?.data?.session?.user ?? null;
+			if (currentUser) {
+				fetchSupabaseToDexie(currentUser);
+			}
+		});
+
+		supabase.auth.onAuthStateChange(async (_event: string, session: any) => {
+			currentUser = session?.user ?? null;
+			if (currentUser) {
+				isSyncing = true;
+				await syncLocalDexieToSupabase(currentUser);
+				await fetchSupabaseToDexie(currentUser);
+				isSyncing = false;
+			}
 		});
 	}
 
@@ -47,7 +71,7 @@
 				</div>
 			</button>
 
-			<!-- Desktop & Mobile Actions (PWA Install + Anti-Spoiler Shield Toggle) -->
+			<!-- Desktop & Mobile Actions (PWA Install + Anti-Spoiler Shield Toggle + Auth Profile) -->
 			<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
 				{#if canInstallPWA}
 					<button
@@ -77,6 +101,31 @@
 						<span class="text-[11px] sm:text-xs">Spoiler Shield OFF</span>
 					{/if}
 				</button>
+
+				<!-- Auth / Cloud Sync User Button -->
+				{#if currentUser}
+					<div class="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-300 shadow-sm">
+						<CloudCheck class={`h-3.5 w-3.5 text-amber-700 ${isSyncing ? 'animate-spin' : ''}`} />
+						<span class="text-[11px] font-bold text-stone-800 max-w-[90px] sm:max-w-[140px] truncate">
+							{currentUser.email?.split('@')[0]}
+						</span>
+						<button
+							onclick={() => signOutUser()}
+							class="text-stone-400 hover:text-red-600 transition-colors ml-1"
+							title="Sign Out"
+						>
+							<LogOut class="h-3.5 w-3.5" />
+						</button>
+					</div>
+				{:else}
+					<button
+						onclick={() => (showAuthModal = true)}
+						class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-2.5 py-1.5 text-xs font-extrabold text-stone-950 shadow-sm hover:from-amber-400 hover:to-yellow-400 transition-all"
+					>
+						<UserIcon class="h-3.5 w-3.5 text-stone-950" />
+						<span>Sign In</span>
+					</button>
+				{/if}
 			</div>
 		</div>
 
@@ -128,7 +177,7 @@
 		</div>
 	</div>
 
-	<!-- Navigation Tabs Bar (Desktop + Tablet horizontal scrollable) -->
+	<!-- Navigation Tabs Bar -->
 	<nav class="hidden sm:flex mx-auto mt-2.5 max-w-7xl items-center justify-center gap-1.5 border-t border-stone-200/80 pt-2 overflow-x-auto no-scrollbar">
 		<button
 			onclick={() => (tracker.activeTab = 'watching')}
@@ -180,7 +229,7 @@
 	</nav>
 </header>
 
-<!-- Mobile Bottom Fixed Navigation Bar (App-like ergonomics) -->
+<!-- Mobile Bottom Fixed Navigation Bar -->
 <div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 py-1.5 shadow-lg flex items-center justify-around">
 	<button
 		onclick={() => (tracker.activeTab = 'watching')}
@@ -222,3 +271,8 @@
 		<span class="text-[10px]">Discover</span>
 	</button>
 </div>
+
+<!-- Auth Modal -->
+{#if showAuthModal}
+	<AuthModal onClose={() => (showAuthModal = false)} />
+{/if}
