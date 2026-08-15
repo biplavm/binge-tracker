@@ -61,8 +61,12 @@
 		}
 	}
 	async function handleUserSignOut() {
-		await signOutUser();
-		currentUser = null;
+		try {
+			await signOutUser();
+		} catch (err) {
+			console.error('Sign out failed:', err);
+		}
+		// onAuthStateChange listener above will set currentUser = null
 		showAuthModal = false;
 	}
 </script>

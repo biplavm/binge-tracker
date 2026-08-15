@@ -54,22 +54,11 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
 
 export async function signOutUser() {
 	const client = getSupabase();
-	if (client) {
-		try {
-			await client.auth.signOut();
-		} catch (err) {
-			console.warn('Sign out warning:', err);
-		}
-	}
-	_supabase = null;
-	if (typeof window !== 'undefined') {
-		try {
-			window.localStorage.clear();
-			window.sessionStorage.clear();
-		} catch (e) {
-			console.warn('Storage clear error:', e);
-		}
-		window.location.href = '/';
+	if (!client) return;
+	const { error } = await client.auth.signOut();
+	if (error) {
+		console.error('Sign out error:', error.message);
+		throw error;
 	}
 }
 

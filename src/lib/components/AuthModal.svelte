@@ -39,11 +39,10 @@
 	}
 
 	async function handleSignOut() {
-		await signOutUser();
 		if (onSignOut) {
 			onSignOut();
 		} else {
-			currentUser = null;
+			await signOutUser();
 			onClose();
 		}
 	}
